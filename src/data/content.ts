@@ -144,5 +144,5 @@ export const contact = {
 };
 
 export const footer = {
-  text: 'Michelle Banti · Hecho con cariño',
+  text: 'Michelle Alexia Banti · Hecho con amor',
 };
