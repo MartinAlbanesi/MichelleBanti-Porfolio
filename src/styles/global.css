@@ -93,6 +93,10 @@
   .on-dark :focus-visible {
     outline-color: var(--color-paper);
   }
+  /* Sections focused by in-page links (tabindex=-1) are not interactive: no ring around the whole section */
+  [tabindex='-1']:focus-visible {
+    outline: none;
+  }
 }
 
 /* Loader de imágenes: brillo que cruza mientras la imagen (o la animación) no cargó.

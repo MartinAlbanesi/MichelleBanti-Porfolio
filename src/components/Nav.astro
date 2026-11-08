@@ -1,5 +1,5 @@
 ---
-import { nav, hero } from '../data/content';
+import { nav, hero, contact } from '../data/content';
 ---
 
 <!-- Centinela de 1px justo encima del índice: cuando sale por arriba, el índice quedó pegado -->
@@ -21,6 +21,12 @@ import { nav, hero } from '../data/content';
           </a>
         </li>
       ))}
+      <!-- Only visible in the floating (stuck) bar -->
+      <li class="nav-cta-item">
+        <a href="#contacto" class="nav-cta">
+          {contact.title}
+        </a>
+      </li>
     </ul>
   </div>
 </nav>
@@ -144,6 +150,31 @@ import { nav, hero } from '../data/content';
     transform: skewX(-20deg);
     background: var(--color-butter);
   }
+  .nav-cta-item {
+    display: none;
+  }
+  .nav[data-stuck] .nav-cta-item {
+    display: block;
+  }
+  .nav-cta {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 1.25rem;
+    border-radius: 9999px;
+    background: var(--color-butter);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s;
+  }
+  .nav-cta:hover {
+    background: var(--color-cream);
+  }
   .nav-spacer {
     height: 0;
     background: var(--color-ink);
@@ -225,6 +256,9 @@ import { nav, hero } from '../data/content';
     .nav[data-stuck] .nav-link:hover {
       background: color-mix(in srgb, var(--color-paper) 10%, transparent);
     }
+    .nav[data-stuck] .nav-cta-item {
+      padding-block: 0.25rem 0.75rem;
+    }
   }
 
   @media (min-width: 768px) {
@@ -246,6 +280,27 @@ import { nav, hero } from '../data/content';
     }
     .nav[data-stuck] .nav-link:hover {
       background: color-mix(in srgb, var(--color-paper) 10%, transparent);
+    }
+  }
+
+  /* Tablet: brand + 4 links + CTA must fit in one row */
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .nav[data-stuck] .nav-inner {
+      gap: 0.5rem;
+    }
+    .nav[data-stuck] .nav-brand {
+      white-space: nowrap;
+    }
+    .nav[data-stuck] .nav-list {
+      gap: 0;
+    }
+    .nav[data-stuck] .nav-link {
+      padding-inline: 0.5rem;
+      font-size: 0.9375rem;
+    }
+    .nav[data-stuck] .nav-cta {
+      padding-inline: 0.875rem;
+      font-size: 0.9375rem;
     }
   }
 
@@ -327,6 +382,7 @@ import { nav, hero } from '../data/content';
     // Sección actual: la última cuyo borde superior ya pasó el 40% de la pantalla
     const links = [...nav.querySelectorAll<HTMLAnchorElement>('.nav-link')];
     const targets = links.map((l) => document.querySelector(l.getAttribute('href') || ''));
+    const contactSection = document.getElementById('contacto');
     let raf = 0;
     const mark = () => {
       raf = 0;
@@ -334,6 +390,9 @@ import { nav, hero } from '../data/content';
       targets.forEach((t, i) => {
         if (t && t.getBoundingClientRect().top <= innerHeight * 0.4) cur = i;
       });
+      // In the contact section (short, so also when scrolled to the bottom) no index link is current
+      const atBottom = innerHeight + scrollY >= document.documentElement.scrollHeight - 2;
+      if (atBottom || (contactSection && contactSection.getBoundingClientRect().top <= innerHeight * 0.4)) cur = -1;
       links.forEach((l, i) => (i === cur ? l.setAttribute('aria-current', 'true') : l.removeAttribute('aria-current')));
     };
     addEventListener('scroll', () => (raf ||= requestAnimationFrame(mark)), { passive: true });

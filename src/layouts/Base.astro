@@ -67,6 +67,23 @@ const ogImage = image && Astro.site ? new URL(image, Astro.site).href : undefine
         if (img.naturalWidth) done(img);
         else if (img.closest('.skeleton')) img.style.visibility = 'hidden';
       });
+
+      // In-page links scroll without writing #section to the URL: a copied link always opens on the hero.
+      if (location.hash) {
+        history.replaceState(null, '', location.pathname + location.search);
+        scrollTo(0, 0);
+      }
+      document.addEventListener('click', (e) => {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        const link = (e.target as Element).closest<HTMLAnchorElement>('a[href^="#"]');
+        const target = link && link.hash && document.getElementById(decodeURIComponent(link.hash.slice(1)));
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView(); // honors CSS scroll-behavior and scroll-margin-top
+        // Keep keyboard/screen-reader position in sync, as native anchor navigation does
+        if (!target.matches('a, button, input, select, textarea, [tabindex]')) target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+      });
     </script>
   </body>
 </html>
