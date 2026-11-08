@@ -1,0 +1,52 @@
+---
+import { contact } from '../data/content';
+import { CONTACT_EMAIL, WHATSAPP_URL, WHATSAPP_DISPLAY } from '../data/site';
+import { icons } from '../data/icons';
+import LottiePill from './LottiePill.astro';
+
+const pill = 'h-14 w-full px-7 text-sm focus-visible:outline-paper sm:w-auto sm:text-base';
+---
+
+<section id="contacto" class="bg-terracotta-dark text-paper">
+  <div class="mx-auto max-w-7xl px-4 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] py-10 md:py-14">
+    <!-- Título + ícono animado (Lottie) a su derecha. Sin JS o si falla la carga, solo queda el título -->
+    <div class="flex items-center gap-2 sm:gap-4">
+      <h2 class="section-title">{contact.title}</h2>
+      <div data-letter aria-hidden="true" class="skeleton size-20 shrink-0 rounded-full sm:size-28 lg:size-32"></div>
+    </div>
+    <!-- Mismos botones animados que el hero, con ícono -->
+    <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+      <LottiePill href={`mailto:${CONTACT_EMAIL}`} icon={icons.mail} class={pill} animated={false}>
+        {contact.emailLabel}
+      </LottiePill>
+      <LottiePill
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        icon={icons.whatsapp}
+        class={pill}
+        animated={false}
+      >
+        <span>
+          {contact.whatsappLabel}
+          <span class="hidden sm:inline"> · {WHATSAPP_DISPLAY}</span>
+        </span>
+      </LottiePill>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { lazyLottie } from '../lib/lottie';
+  const el = document.querySelector<HTMLElement>('[data-letter]');
+  // Con "reducir movimiento" queda quieto en un cuadro donde el sobre ya se ve
+  if (el)
+    lazyLottie(
+      el,
+      () => import('../assets/valentine-letter.json'),
+      {},
+      (anim, reduce) => {
+        if (reduce) anim.goToAndStop(120, true);
+      },
+    );
+</script>

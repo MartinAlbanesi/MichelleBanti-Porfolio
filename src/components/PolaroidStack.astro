@@ -1,0 +1,130 @@
+---
+// Pila de polaroids: se ve la de arriba y las otras asoman detrás. Cada 3,5 s (o con un clic / Enter)
+// la de arriba "se la lleva el viento" hacia la izquierda y pasa al fondo de la pila.
+// Sin JS queda la pila quieta; con "reducir movimiento" el cambio es instantáneo y sin avance automático.
+import { Image } from 'astro:assets';
+
+interface Props {
+  photos: { src: ImageMetadata; alt: string }[];
+  class?: string;
+}
+const { photos, class: className = '' } = Astro.props;
+---
+
+<div
+  data-stack
+  role="button"
+  tabindex="0"
+  aria-label="Ver otra foto"
+  class:list={['stack relative mx-auto aspect-[19/25] w-full max-w-sm cursor-pointer select-none', className]}
+>
+  {photos.map((p, i) => (
+    <figure
+      data-card
+      data-pos={Math.min(i, 3)}
+      aria-hidden={i > 0 ? 'true' : undefined}
+      style={`z-index:${photos.length - i}`}
+      class="card absolute inset-0 bg-[#FBF7EA] p-3 shadow-[0_10px_25px_-8px_rgba(35,26,20,0.45)]"
+    >
+      <Image
+        src={p.src}
+        alt={p.alt}
+        widths={[360, 540, 720]}
+        quality={72}
+        sizes="(min-width: 768px) 360px, 90vw"
+        draggable="false"
+        class="skeleton h-full w-full object-cover"
+      />
+    </figure>
+  ))}
+</div>
+
+<style>
+  .card {
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+    will-change: transform;
+  }
+  .card[data-pos='0'] {
+    transform: rotate(-2deg);
+  }
+  .card[data-pos='1'] {
+    transform: translate(12px, 8px) rotate(3deg);
+  }
+  .card[data-pos='2'],
+  .card[data-pos='3'] {
+    transform: translate(-10px, 12px) rotate(-6deg);
+  }
+  .card[data-pos='3'] {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .stack:hover .card[data-pos='0'] {
+      transform: rotate(0deg);
+    }
+  }
+</style>
+
+<script>
+  const FLY_MS = 1000;
+  const AUTO_MS = 3500;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('[data-stack]').forEach((root) => {
+    const cards = [...root.querySelectorAll<HTMLElement>('[data-card]')];
+    if (cards.length < 2) return;
+    let order = [...cards];
+    let busy = false;
+    let paused = false;
+
+    const layout = (list: HTMLElement[]) =>
+      list.forEach((c, i) => {
+        c.dataset.pos = String(Math.min(i, 3));
+        c.style.zIndex = String(cards.length - i);
+        if (i > 0) c.setAttribute('aria-hidden', 'true');
+        else c.removeAttribute('aria-hidden');
+      });
+
+    const next = () => {
+      if (busy) return;
+      busy = true;
+      const top = order[0];
+      const rest = order.slice(1);
+      // La de arriba pasa al fondo sin transición, para que no se la vea deslizarse por debajo de las demás
+      const finish = () => {
+        top.style.transition = 'none';
+        order = [...rest, top];
+        layout(order);
+        void top.offsetWidth;
+        top.style.transition = '';
+        busy = false;
+      };
+      if (reduce) return finish();
+      layout(rest); // las demás avanzan un lugar (con su transición normal)
+      top.style.zIndex = String(cards.length + 1);
+      top
+        .animate(
+          [
+            { transform: 'rotate(-2deg)', opacity: 1 },
+            { transform: 'translate(5%, -3%) rotate(2deg)', opacity: 1, offset: 0.25 }, // se despega
+            { transform: 'translate(-145%, -18%) rotate(-32deg)', opacity: 0 }, // se la lleva el viento
+          ],
+          { duration: FLY_MS, easing: 'cubic-bezier(0.5, 0, 0.9, 0.5)' },
+        )
+        .addEventListener('finish', finish);
+    };
+
+    root.addEventListener('click', next);
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        next();
+      }
+    });
+    // Pausa con el mouse o el foco encima, y con la pestaña oculta
+    root.addEventListener('pointerenter', () => (paused = true));
+    root.addEventListener('pointerleave', () => (paused = false));
+    root.addEventListener('focusin', () => (paused = true));
+    root.addEventListener('focusout', () => (paused = false));
+    if (!reduce) setInterval(() => !paused && !document.hidden && next(), AUTO_MS);
+  });
+</script>

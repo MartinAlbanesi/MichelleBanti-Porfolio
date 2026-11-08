@@ -1,0 +1,38 @@
+---
+import foto1 from '../assets/quien-soy/1-quien-soy.jpeg';
+import foto2 from '../assets/quien-soy/2-quien-soy.jpeg';
+import foto3 from '../assets/quien-soy/3-quien-soy.jpeg';
+import foto4 from '../assets/quien-soy/4-quien-soy.jpeg';
+import foto5 from '../assets/quien-soy/5-quien-soy.jpeg';
+import { about } from '../data/content';
+import GradEmoji from './GradEmoji.astro';
+import PolaroidStack from './PolaroidStack.astro';
+import SectionHeading from './SectionHeading.astro';
+
+// "Quién soy": ocupa la pantalla visible, con el primer párrafo destacado.
+// Fotos de la pila, en el mismo orden que about.who.photoAlts.
+const srcs = [foto1, foto2, foto3, foto4, foto5];
+const photos = srcs.map((src, i) => ({ src, alt: about.who.photoAlts[i] }));
+---
+
+<section id="quien-soy" class="overflow-x-clip bg-cream">
+  <div class="mx-auto grid min-h-[calc(100svh-var(--nav-h))] max-w-7xl items-center gap-8 px-4 py-10 md:grid-cols-2 md:gap-14 lg:px-8 xl:gap-24">
+    <div>
+      <SectionHeading title={about.who.title} />
+      <div class="mt-5 space-y-4">
+        {about.who.paragraphs.map((p, i) => {
+          const [before, after] = p.split('{grad}');
+          return (
+            <p class={i === 0 ? 'text-xl leading-snug md:text-2xl' : 'text-lg leading-relaxed text-ink/90 md:text-xl'}>
+              {before}
+              {after !== undefined && <GradEmoji />}
+              {after}
+            </p>
+          );
+        })}
+      </div>
+    </div>
+    <!-- Texto primero en el DOM (título arriba en móvil); la foto va a la izquierda en md+ -->
+    <PolaroidStack photos={photos} class="md:order-first" />
+  </div>
+</section>

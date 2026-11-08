@@ -1,0 +1,341 @@
+---
+import { eterShowcase as s } from '../data/content';
+import { ETER_PORTFOLIO_URL } from '../data/site';
+
+const linkReady = ETER_PORTFOLIO_URL !== '#';
+const btn = 'inline-flex min-h-11 items-center px-5 py-3 font-display text-sm font-bold';
+const arrow =
+  'inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center text-cream opacity-80 transition-opacity hover:opacity-100 focus-visible:opacity-100';
+const total = s.items.length;
+---
+
+<!-- group: lo que depende de JS (data-js).
+     La vista previa ocupa toda la tarjeta; título, flechas y círculos van superpuestos en la barra inferior (3rem). -->
+<div data-showcase class="group flex w-full flex-1 flex-col [--bar-h:4.5rem] sm:[--bar-h:3rem]">
+  <figure class="relative aspect-[4/3] w-full flex-1 lg:aspect-auto lg:min-h-[26rem]">
+    <div class="absolute inset-0 overflow-hidden bg-ink">
+      <!-- Pista con scroll-snap: se desliza nativamente (swipe/trackpad), con o sin JS -->
+      <div
+        data-track
+        role="region"
+        aria-roledescription="carrusel"
+        aria-label={s.label}
+        tabindex="0"
+        class="flex h-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain focus-visible:outline-offset-[-3px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {s.items.map((it, i) => (
+          <div
+            data-slide
+            role="group"
+            aria-roledescription="diapositiva"
+            aria-label={`${i + 1} de ${total}: ${it.title}`}
+            class="relative h-full w-full shrink-0 snap-center snap-always overflow-hidden"
+          >
+            {/* Fachada "lite": la miniatura no carga nada de YouTube hasta el clic.
+                  El iframe usa youtube-nocookie.com (si algún día se agrega una Content-Security-Policy,
+                  permitir frame-src https://www.youtube-nocookie.com e img-src https://i.ytimg.com). */}
+            <button
+              type="button"
+              data-play
+              data-id={it.youtubeId}
+              data-title={it.title}
+              aria-label={`${s.play}: ${it.title}`}
+              class="relative block h-full w-full overflow-hidden bg-ink focus-visible:outline-offset-[-3px]"
+            >
+              <!-- maxresdefault (1280x720, 16:9 sin franjas). Si el video no la tiene (YouTube responde 404 con una imagen gris de 120 px),
+                     se usa sddefault (640x480, con franjas negras que .thumb-sd recorta en pantallas angostas). -->
+              <img
+                src={`https://i.ytimg.com/vi/${it.youtubeId}/maxresdefault.jpg`}
+                onerror={`this.onerror=null;this.classList.add('thumb-sd');this.src='https://i.ytimg.com/vi/${it.youtubeId}/sddefault.jpg'`}
+                onload={`if(this.naturalWidth<200&&!this.classList.contains('thumb-sd')){this.classList.add('thumb-sd');this.src='https://i.ytimg.com/vi/${it.youtubeId}/sddefault.jpg'}`}
+                width="1280"
+                height="720"
+                loading="lazy"
+                alt=""
+                class="skeleton h-full w-full object-cover"
+              />
+              <span class="absolute inset-0 flex items-center justify-center pb-(--bar-h)" aria-hidden="true">
+                <span class="flex size-10 items-center justify-center rounded-full bg-rust/75 text-paper backdrop-blur-[2px] sm:size-12 lg:size-14">
+                  <svg viewBox="0 0 24 24" class="size-5 sm:size-6 lg:size-7" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+              </span>
+              <!-- Loader esqueleto: se muestra entre el clic y el momento en que el iframe termina de cargar -->
+              <span
+                data-loader
+                hidden
+                class="video-loader absolute inset-0 flex items-center justify-center"
+                aria-hidden="true"
+              >
+                <span class="spinner size-12 rounded-full border-4 border-paper/25 border-t-paper"></span>
+              </span>
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <!-- Barra inferior superpuesta. sm+: título a la izquierda, flechas + círculos a la derecha (3rem).
+           Celular: dos filas (4,5rem), el título arriba con todo el ancho y los controles abajo, así nunca se pisan.
+           Con un video en reproducción el iframe termina justo arriba de la barra (--bar-h), así no tapa los controles de YouTube. -->
+      <div class="bar pointer-events-none absolute inset-x-0 bottom-0 z-10 flex h-(--bar-h) flex-col justify-end pr-1 sm:flex-row sm:items-center sm:gap-2 sm:pl-5">
+        <div class="pointer-events-auto min-w-0 px-4 sm:flex-1 sm:px-0" aria-live="polite" aria-atomic="true">
+          {s.items.map((it) => (
+            <div data-caption class="not-first:mt-1">
+              <p
+                class="line-clamp-1 font-display text-sm font-bold text-cream [text-shadow:0_1px_3px_rgb(0_0_0/0.7)]"
+                title={it.title}
+              >
+                {it.title}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <!-- Controles (solo con JS: sin JS la pista se desliza igual) -->
+        <div class="pointer-events-auto hidden shrink-0 items-center self-end group-data-[js]:flex sm:self-auto">
+          <button type="button" data-prev aria-label={s.prev} class={arrow}>
+            <svg
+              viewBox="0 0 24 24"
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              aria-hidden="true"
+            >
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </button>
+          <div class="flex">
+            {s.items.map((it, i) => (
+              <button
+                type="button"
+                data-dot
+                aria-label={`${s.goTo} ${i + 1}: ${it.title}`}
+                class="group/dot inline-flex min-h-10 min-w-8 items-center justify-center"
+              >
+                <span class="h-3 w-3 rounded-full border-2 border-cream transition-colors group-aria-[current=true]/dot:bg-cream" />
+              </button>
+            ))}
+          </div>
+          <button type="button" data-next aria-label={s.next} class={arrow}>
+            <svg
+              viewBox="0 0 24 24"
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              aria-hidden="true"
+            >
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </figure>
+
+  <!-- CTA secundario -->
+  {linkReady && (
+    <div class="bg-cream p-4 text-center">
+      <a
+        href={ETER_PORTFOLIO_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        class={`${btn} border-2 border-terracotta-dark text-terracotta-dark transition-colors hover:bg-terracotta-dark hover:text-paper`}
+      >
+        {s.cta}
+      </a>
+    </div>
+  )}
+</div>
+
+<style>
+  /* Entrada/salida al cambiar de video: el activo se muestra, los demás se desvanecen y achican */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-slide] {
+      transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
+    }
+  }
+  [data-showcase][data-js] [data-slide]:not([data-active='true']) {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  /* sddefault trae franjas negras arriba y abajo: con marco 4:3 (celular/tablet) se amplía para taparlas;
+     en lg+ el marco es ancho y el recorte "cover" ya las deja fuera, así que no se amplía (más nitidez). */
+  .thumb-sd {
+    transform: scale(1.34);
+  }
+  @media (min-width: 1024px) {
+    .thumb-sd {
+      transform: none;
+    }
+  }
+  /* Degradado que da lectura a título y controles sobre cualquier miniatura */
+  .bar {
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-ink) 88%, transparent),
+      color-mix(in srgb, var(--color-ink) 55%, transparent) 60%,
+      transparent
+    );
+  }
+  /* Esqueleto: base oscura con un brillo que cruza; el aro gira al centro */
+  .video-loader {
+    background: linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--color-ink) 72%, transparent) 30%,
+      rgb(70 51 42 / 0.72) 50%,
+      color-mix(in srgb, var(--color-ink) 72%, transparent) 70%
+    );
+    background-size: 220% 100%;
+  }
+  .video-loader[hidden] {
+    display: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .video-loader {
+      animation: shimmer 1.3s linear infinite;
+    }
+    .spinner {
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes shimmer {
+      to {
+        background-position: -220% 0;
+      }
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-showcase]');
+  const track = root?.querySelector<HTMLElement>('[data-track]');
+  if (root && track) {
+    const slides = [...track.querySelectorAll<HTMLElement>('[data-slide]')];
+    const captions = [...root.querySelectorAll<HTMLElement>('[data-caption]')];
+    const dots = [...root.querySelectorAll<HTMLElement>('[data-dot]')];
+    const live = root.querySelector<HTMLElement>('[aria-live]');
+    const n = slides.length;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    const AUTO_MS = 4000;
+    let cur = -1;
+    let timer = 0;
+    let lockUntil = 0; // ignora al observer mientras corre un desplazamiento programático
+    let inView = false;
+    let hovering = false;
+
+    // Volver a la fachada: corta el iframe para que no suene audio en un slide oculto
+    const resetFacade = (slide: HTMLElement) => {
+      slide.querySelector('iframe')?.remove();
+      slide.querySelector<HTMLElement>('[data-loader]')?.setAttribute('hidden', '');
+      slide.querySelector<HTMLElement>('[data-play]')?.removeAttribute('hidden');
+    };
+
+    // Ciclo automático: se frena con un video en reproducción, mouse encima, fuera de pantalla,
+    // pestaña oculta o movimiento reducido. Cada cambio reinicia la cuenta.
+    // ponytail: no hay API de YouTube, así que un video pausado/terminado frena el ciclo hasta navegar a mano.
+    const schedule = () => {
+      clearTimeout(timer);
+      const playing = !!slides[cur]?.querySelector('iframe');
+      if (n < 2 || reduce.matches || document.hidden || !inView || hovering || playing) return;
+      timer = window.setTimeout(() => go(cur + 1, true), AUTO_MS);
+    };
+
+    const set = (i: number) => {
+      if (i === cur) return;
+      cur = i;
+      slides.forEach((sl, j) => {
+        sl.inert = j !== i;
+        sl.dataset.active = String(j === i);
+        if (j !== i) resetFacade(sl);
+        captions[j].hidden = j !== i;
+        dots[j].setAttribute('aria-current', String(j === i));
+      });
+      schedule();
+    };
+
+    const go = (i: number, auto = false) => {
+      const t = (i + n) % n;
+      // El ciclo automático no debe anunciarse cada 4 s a un lector de pantalla
+      live?.setAttribute('aria-live', auto ? 'off' : 'polite');
+      lockUntil = performance.now() + 700;
+      set(t);
+      // Al dar la vuelta (último -> primero) se salta sin recorrer los intermedios; el fundido tapa el salto
+      track.scrollTo({ left: t * track.clientWidth, behavior: reduce.matches || t !== i ? 'auto' : 'smooth' });
+    };
+
+    root.dataset.js = '';
+    set(0);
+
+    // El slide visible es el que ocupa más del 60% de la pista
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting && performance.now() > lockUntil) set(slides.indexOf(e.target as HTMLElement));
+        }),
+      { root: track, threshold: 0.6 },
+    );
+    slides.forEach((sl) => io.observe(sl));
+
+    new IntersectionObserver(
+      ([e]) => {
+        inView = e.isIntersecting;
+        schedule();
+      },
+      { threshold: 0.3 },
+    ).observe(root);
+    root.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      hovering = true;
+      schedule();
+    });
+    root.addEventListener('pointerleave', () => {
+      hovering = false;
+      schedule();
+    });
+    document.addEventListener('visibilitychange', schedule);
+    reduce.addEventListener('change', schedule);
+
+    root.querySelector('[data-prev]')!.addEventListener('click', () => go(cur - 1));
+    root.querySelector('[data-next]')!.addEventListener('click', () => go(cur + 1));
+    dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+
+    track.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      go(cur + (e.key === 'ArrowRight' ? 1 : -1));
+    });
+
+    // Clic en la miniatura: reemplazarla por el iframe de YouTube (autoplay porque el usuario ya hizo clic)
+    track.addEventListener('click', (e) => {
+      const play = (e.target as HTMLElement).closest<HTMLElement>('[data-play]');
+      if (!play) return;
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${play.dataset.id}?autoplay=1&rel=0`;
+      f.title = play.dataset.title ?? '';
+      f.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      // Termina arriba de la barra inferior (3rem) para no tapar los controles de YouTube; invisible hasta el evento load
+      f.className =
+        'absolute inset-x-0 top-0 bottom-(--bar-h) block h-[calc(100%-var(--bar-h))] w-full border-0 opacity-0';
+      const loader = play.querySelector<HTMLElement>('[data-loader]');
+      loader?.removeAttribute('hidden');
+      f.addEventListener('load', () => {
+        f.classList.remove('opacity-0');
+        play.hidden = true;
+        loader?.setAttribute('hidden', '');
+      });
+      play.after(f);
+      f.focus();
+      schedule(); // hay un video en reproducción: frena el ciclo
+    });
+  }
+</script>

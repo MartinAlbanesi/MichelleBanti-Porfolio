@@ -1,0 +1,102 @@
+---
+import bancaLogo from '../assets/BANCA/1-banca.jpg';
+import bancaFiesta from '../assets/BANCA/2-banca.jpeg';
+import bancaBaile from '../assets/BANCA/3-banca.jpeg';
+import { now, type Project } from '../data/content';
+import CastCrossfade from './CastCrossfade.astro';
+import SectionHeading from './SectionHeading.astro';
+import { icons } from '../data/icons';
+
+const projects: Project[] = now.projects;
+---
+
+<!-- "Dónde estoy": título enorme y dos tarjetas (foto con título e índice de círculos, texto abajo) -->
+<section id="ahora" aria-labelledby="ahora-titulo" class="bg-terracotta text-paper">
+  <div class="mx-auto max-w-7xl px-4 pb-10 pt-8 md:pb-14 md:pt-10 lg:px-8">
+    <SectionHeading id="ahora-titulo" title={now.title} />
+
+    <ul class="mt-6 grid gap-6 md:grid-cols-2 md:gap-7">
+      {projects.map((project, i) => (
+        <li
+          id={project.id}
+          class:list={['card flex flex-col', i % 2 === 0 ? 'bg-cream text-ink' : 'bg-ink text-paper']}
+        >
+          <div class="relative overflow-hidden">
+            {project.id === 'banca' ? (
+              <CastCrossfade
+                images={[{ src: bancaLogo }, { src: bancaFiesta, pos: '50% 65%' }, { src: bancaBaile, pos: '50% 40%' }]}
+                alt="BANCA Producciones: su logo, Michelle trabajando con una notebook en una fiesta al aire libre y un grupo bailando en un evento"
+                dots
+                class="aspect-[5/4] md:aspect-[4/3]"
+              />
+            ) : (
+              <CastCrossfade
+                alt="Elenco de la obra posando en una galería de paredes amarillas"
+                dots
+                class="aspect-[5/4] md:aspect-[4/3]"
+              />
+            )}
+            <!-- Título sobre la foto: una sombra degradada que sube desde abajo le da contraste con cualquier imagen -->
+            <h3 class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 via-ink/50 to-transparent px-5 pb-4 pt-16 font-display text-2xl font-extrabold uppercase leading-[1.05] tracking-tight text-cream [text-shadow:0_2px_8px_rgb(0_0_0/0.5)] md:px-6 md:text-3xl">
+              {project.title}
+            </h3>
+          </div>
+
+          <div class="flex flex-1 flex-col px-5 py-4 md:px-6">
+            <div class="space-y-1.5 text-base leading-normal">
+              {project.paragraphs.map((p) => (
+                <p>{p}</p>
+              ))}
+            </div>
+            {project.url && (
+              <a
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class:list={[
+                  'link mt-auto inline-flex items-center gap-2 self-start pt-4 font-display text-sm font-bold',
+                  i % 2 === 0 ? 'text-rust' : 'text-butter',
+                ]}
+                aria-label={`${now.visit}: ${project.title} (se abre en una pestaña nueva)`}
+              >
+                {now.visit}
+                <svg
+                  viewBox="0 0 24 24"
+                  class="arrow size-6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                  set:html={icons.instagram}
+                />
+              </a>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* El ícono de Instagram se inclina y crece un poco al pasar el mouse o enfocar el enlace */
+  .arrow {
+    transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .link:hover .arrow,
+  .link:focus-visible .arrow {
+    transform: scale(1.15) rotate(-6deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .arrow {
+      transition: none;
+    }
+    .link:hover .arrow,
+    .link:focus-visible .arrow {
+      transform: none;
+    }
+  }
+</style>

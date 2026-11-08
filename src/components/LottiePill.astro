@@ -1,0 +1,103 @@
+---
+// Botón píldora animado (Lottie de IconScout, sin su texto original) con el texto en HTML encima.
+// Mientras carga, o si falla, la píldora es el fondo CSS. Al pasar el mouse o enfocar, rebota y suelta una onda.
+// Lo usan "Escribime" y "Ver CV" (hero). Con animated={false} es una píldora beige lisa (botones de contacto):
+// así no se estira la animación en botones anchos.
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'a'> {
+  href: string;
+  /** Contenido interno de un ícono de línea (viewBox 24x24), por ejemplo de data/icons.ts */
+  icon?: string;
+  /** false: sin Lottie, fondo beige que se aclara al pasar el mouse */
+  animated?: boolean;
+}
+const { class: className, icon, animated = true, ...attrs } = Astro.props;
+---
+
+<a
+  data-pill
+  class:list={[
+    'pill group relative isolate inline-flex items-center justify-center gap-2 rounded-full font-display font-extrabold uppercase tracking-wider text-ink',
+    className ?? 'h-14 w-36 text-lg sm:w-52 lg:h-[clamp(3rem,8svh,4rem)] lg:w-56 lg:text-xl',
+  ]}
+  {...attrs}
+>
+  <span
+    aria-hidden="true"
+    data-pill-bg
+    class:list={[
+      'absolute inset-0 -z-10 rounded-full',
+      animated ? 'bg-butter' : 'bg-paper transition-colors group-hover:bg-cream',
+    ]}
+  ></span>
+  {animated && (
+    <span
+      aria-hidden="true"
+      data-pill-anim
+      class="pointer-events-none absolute inset-0 -z-10 [&_svg]:overflow-visible"
+    />
+  )}
+  {icon && (
+    <svg
+      viewBox="0 0 24 24"
+      class="pill-icon size-5 shrink-0 sm:size-6"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      set:html={icon}
+    />
+  )}
+  <slot />
+</a>
+
+<style>
+  /* El ícono se sacude un poco al pasar el mouse o enfocar el botón */
+  @media (prefers-reduced-motion: no-preference) {
+    .pill:hover .pill-icon,
+    .pill:focus-visible .pill-icon {
+      animation: pill-wiggle 0.5s ease-in-out;
+    }
+    @keyframes pill-wiggle {
+      25% {
+        transform: rotate(-14deg) scale(1.1);
+      }
+      60% {
+        transform: rotate(10deg) scale(1.1);
+      }
+    }
+  }
+</style>
+
+<script>
+  import { lazyLottie } from '../lib/lottie';
+  document.querySelectorAll<HTMLElement>('[data-pill]').forEach((link) => {
+    const host = link.querySelector<HTMLElement>('[data-pill-anim]');
+    if (!host) return;
+    lazyLottie(
+      host,
+      () => import('../assets/contact-btn.json'),
+      {
+        loop: false,
+        autoplay: false,
+        // Recorte a la píldora (3840x2160 de lienzo): el resto es aire
+        rendererSettings: { viewBoxSize: '852 764 2136 632', preserveAspectRatio: 'none' },
+      },
+      (anim, reduce) => {
+        // Fotograma 0 = píldora entera: pasa a ser el fondo y se oculta el CSS
+        anim.addEventListener('DOMLoaded', () => {
+          anim.goToAndStop(0, true);
+          link.querySelector('[data-pill-bg]')?.classList.add('hidden');
+        });
+        if (reduce) return;
+        const play = () => anim.goToAndPlay(0, true);
+        link.addEventListener('pointerenter', play);
+        link.addEventListener('focus', play);
+      },
+    );
+  });
+</script>

@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import FilmStrip from '../components/FilmStrip.astro';
+import About from '../components/About.astro';
+import JourneyBento from '../components/JourneyBento.astro';
+import Goal from '../components/Goal.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+import NowSection from '../components/NowSection.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import { meta, journey } from '../data/content';
+---
+
+<Base title={meta.title} description={meta.description}>
+  <Hero />
+  <Nav />
+  <FilmStrip />
+  <main id="contenido">
+    <About />
+    <NowSection />
+    <section id="recorrido" aria-labelledby="recorrido-titulo">
+      <div class="mx-auto max-w-7xl px-4 pb-6 pt-6 md:pb-8 md:pt-8 lg:px-8">
+        <SectionHeading id="recorrido-titulo" title={journey.title} />
+        <div class="mt-6">
+          <JourneyBento />
+        </div>
+      </div>
+    </section>
+    <Goal />
+    <Contact />
+  </main>
+  <Footer />
+</Base>

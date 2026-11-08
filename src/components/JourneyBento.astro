@@ -1,0 +1,315 @@
+---
+import { Image } from 'astro:assets';
+import camara from '../assets/MELI/1-meli.jpg';
+import experience from '../assets/MELI/2-meli.jpeg';
+import eterStream from '../assets/ETER/1-eter.jpeg';
+import eterSelfie from '../assets/ETER/2-eter.jpeg';
+import eterEstudio from '../assets/ETER/3-eter.jpeg';
+import { journey } from '../data/content';
+import EterShowcase from './EterShowcase.astro';
+
+const [ml, eter] = journey.projects;
+// Fila 3: fotos de Eter (el recorte "pos" centra a Michelle en cada una)
+const eterPhotos = [
+  {
+    src: eterStream,
+    pos: '30% 55%',
+    alt: 'Michelle con auriculares en el estudio de Stream Eter, junto al cartel luminoso.',
+  },
+  { src: eterSelfie, pos: '40% 35%', alt: 'Selfie de Michelle con auriculares, sonriendo, en el Estudio Eter.' },
+  {
+    src: eterEstudio,
+    pos: '60% 50%',
+    alt: 'Michelle sentada en una cabina de radio de Eter, con auriculares en la mano, junto a una compañera.',
+  },
+];
+---
+
+<!-- Bento de 6 columnas. Celular = pila (texto, fotos de a dos, etc.). lg+ = 3 filas:
+     1) foto cámara | MercadoLibre + texto | foto Experience
+     2) Eter + texto | videos (doble ancho)
+     3) tres fotos (por ahora, espacios reservados) -->
+<div class="grid grid-cols-6 gap-4 lg:gap-7">
+  <article id={ml.id} class="tile tile-dark col-span-6 lg:col-span-2 lg:col-start-3 lg:row-start-1">
+    <h3 class="title no-bar">{ml.title}</h3>
+    <!-- Línea de marca con el período a su derecha -->
+    <p class="rule">{ml.tag}</p>
+    <div class="body">
+      {ml.paragraphs.map((p) => (
+        <p>{p}</p>
+      ))}
+    </div>
+  </article>
+
+  <div class="tile tile-dark frame flex col-span-3 lg:col-span-2 lg:col-start-1 lg:row-start-1">
+    <button type="button" class="photo zoomable skeleton" aria-label="Ampliar foto">
+      <Image
+        src={camara}
+        alt="Michelle sacando una foto con una cámara réflex, con una campera roja y blanca, rodeada de cajas."
+        widths={[360, 540, 720, 1080]}
+        quality={72}
+        sizes="(min-width: 1024px) 30vw, 45vw"
+        style="object-position: 30% 40%"
+      />
+    </button>
+  </div>
+  <div class="tile tile-dark frame flex col-span-3 lg:col-span-2 lg:col-start-5 lg:row-start-1">
+    <button type="button" class="photo zoomable skeleton" aria-label="Ampliar foto">
+      <Image
+        src={experience}
+        alt="Michelle posando frente al cartel de MercadoLibre Experience '25."
+        widths={[360, 540, 720, 1080]}
+        quality={72}
+        sizes="(min-width: 1024px) 30vw, 45vw"
+        style="object-position: 70% 50%"
+      />
+    </button>
+  </div>
+
+  <article id={eter.id} class="tile tile-light col-span-6 lg:col-span-2 lg:col-start-1 lg:row-start-2">
+    <h3 class="title">{eter.title}</h3>
+    <div class="body">
+      {eter.paragraphs.map((p) => (
+        <p>{p}</p>
+      ))}
+    </div>
+  </article>
+  <!-- Videos: sin relleno, la vista previa llega hasta los bordes de la tarjeta -->
+  <div class="tile tile-video flex col-span-6 lg:col-span-4 lg:col-start-3 lg:row-start-2">
+    <EterShowcase />
+  </div>
+
+  {eterPhotos.map((p) => (
+    <div class="tile tile-media frame col-span-2 lg:row-start-3">
+      <button
+        type="button"
+        class="zoomable skeleton relative block aspect-[4/5] w-full overflow-hidden"
+        aria-label="Ampliar foto"
+      >
+        <Image
+          src={p.src}
+          alt={p.alt}
+          widths={[320, 480, 640, 1080]}
+          quality={72}
+          sizes="(min-width: 1024px) 30vw, 30vw"
+          class="absolute inset-0 h-full w-full object-cover"
+          style={`object-position:${p.pos}`}
+        />
+      </button>
+    </div>
+  ))}
+</div>
+
+<!-- Vista ampliada (solo celular/tablet): toque sobre una foto para abrirla, toque en cualquier lado para cerrar -->
+<dialog id="zoom" class="zoom" aria-label="Foto ampliada"></dialog>
+
+<script>
+  const dlg = document.getElementById('zoom') as HTMLDialogElement;
+  const big = document.createElement('img');
+  dlg.append(big);
+  const small = matchMedia('(max-width: 1023px)');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  let from: HTMLImageElement | null = null;
+  const BG = 'rgb(0 0 0 / 0.9)';
+  const CLEAR = 'rgb(0 0 0 / 0)';
+
+  // Transformación que lleva la foto ampliada (ajustada a pantalla) a la posición y tamaño de la miniatura
+  const toThumb = () => {
+    const t = from!.getBoundingClientRect();
+    const nw = from!.naturalWidth || t.width;
+    const nh = from!.naturalHeight || t.height;
+    const fit = Math.min(innerWidth / nw, innerHeight / nh);
+    const k = t.width / (nw * fit);
+    const dx = t.left + t.width / 2 - innerWidth / 2;
+    const dy = t.top + t.height / 2 - innerHeight / 2;
+    return `translate(${dx}px, ${dy}px) scale(${k})`;
+  };
+  const opts = (ms: number, easing: string): KeyframeAnimationOptions => ({ duration: ms, easing, fill: 'both' });
+
+  // "click" no se dispara cuando el dedo arrastra para hacer scroll, así que solo abre con un toque real
+  document.querySelectorAll<HTMLElement>('.zoomable').forEach((b) =>
+    b.addEventListener('click', () => {
+      const img = b.querySelector('img');
+      if (!small.matches || !img) return;
+      from = img;
+      big.alt = img.alt;
+      big.sizes = '100vw';
+      big.srcset = img.srcset;
+      big.src = img.currentSrc || img.src;
+      dlg.showModal();
+      if (reduce.matches) return;
+      // Zoom in: crece desde la miniatura; el fondo oscuro aparece con un fundido
+      dlg.animate({ backgroundColor: [CLEAR, BG] }, opts(300, 'ease-out'));
+      big.animate({ transform: [toThumb(), 'none'] }, opts(350, 'cubic-bezier(0.2, 0.8, 0.2, 1)'));
+    }),
+  );
+
+  let closing = false;
+  const hide = () => {
+    if (closing) return;
+    if (reduce.matches || !from) return dlg.close();
+    closing = true;
+    // Zoom out: vuelve a la miniatura mientras el fondo se desvanece
+    dlg.animate({ backgroundColor: [BG, CLEAR] }, opts(280, 'ease-in'));
+    big.animate({ transform: ['none', toThumb()] }, opts(300, 'cubic-bezier(0.4, 0, 0.8, 0.4)')).finished.then(() => {
+      dlg.close();
+      closing = false;
+    });
+  };
+  dlg.addEventListener('click', hide);
+  dlg.addEventListener('cancel', (e) => {
+    e.preventDefault();
+    hide();
+  });
+</script>
+
+<style>
+  .tile {
+    position: relative;
+    padding: 1.25rem;
+  }
+  .tile-dark {
+    background: var(--color-terracotta-dark);
+    color: var(--color-paper);
+    --accent: var(--color-paper);
+  }
+  .tile-light {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    --accent: var(--color-rust);
+  }
+  /* Fotos: sin marco, llenan la tarjeta completa */
+  .tile.frame {
+    padding: 0;
+  }
+  /* Foto que llena su marco: en celular con proporción fija; en lg+ se estira a la altura de la fila */
+  .photo {
+    position: relative;
+    flex: 1;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+  }
+  .zoomable {
+    display: block;
+    cursor: zoom-in;
+    padding: 0;
+  }
+  @media (min-width: 1024px) {
+    .zoomable {
+      cursor: default;
+    }
+  }
+  .zoom {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgb(0 0 0 / 0.9);
+    cursor: zoom-out;
+  }
+  .zoom[open] {
+    display: grid;
+    place-items: center;
+  }
+  .zoom img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .photo :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Medio: sin borde ni cinta, solo la sombra dura de las demás tarjetas */
+  .tile-media {
+    padding: 0;
+    background: var(--color-cream);
+    color: var(--color-ink);
+  }
+  /* Tarjeta de video: el contenido llega hasta el borde */
+  .tile-video {
+    padding: 0;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    overflow: hidden;
+  }
+  /* Título acentuado: más grande y con barra de acento debajo */
+  .title {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1.05;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+  .title::after {
+    content: '';
+    display: block;
+    width: 3.5rem;
+    height: 0.35rem;
+    margin-top: 0.6rem;
+    background: var(--accent);
+    transform: skewX(-20deg);
+  }
+  .title.no-bar::after {
+    display: none;
+  }
+  .rule {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+  .rule::before {
+    content: '';
+    flex: none;
+    width: 3.5rem;
+    height: 0.35rem;
+    background: var(--accent);
+    transform: skewX(-20deg);
+  }
+  .body {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.75rem;
+    font-size: 1.125rem;
+    line-height: 1.625;
+  }
+  @media (min-width: 768px) {
+    .tile {
+      padding: 1.5rem;
+    }
+    .tile-media,
+    .tile.frame {
+      padding: 0;
+    }
+    .tile-video {
+      padding: 0;
+    }
+    .title {
+      font-size: 3rem;
+    }
+  }
+  /* Tres columnas: los títulos se achican para que "MercadoLibre" entre en un tercio del ancho */
+  @media (min-width: 1024px) {
+    .photo {
+      aspect-ratio: auto;
+      min-height: 18rem;
+    }
+    .title {
+      font-size: clamp(1.6rem, 2.4vw, 2.4rem);
+    }
+  }
+</style>

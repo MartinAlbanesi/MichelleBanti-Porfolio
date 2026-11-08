@@ -1,0 +1,179 @@
+---
+import { Image } from 'astro:assets';
+import heroPhoto from '../assets/hero-selfie.jpeg';
+import { hero } from '../data/content';
+import ClapperLottie from './ClapperLottie.astro';
+import LottiePill from './LottiePill.astro';
+import vinyl from '../assets/vinyl.svg?url';
+import { INSTAGRAM_URL, LINKEDIN_URL, CV_URL } from '../data/site';
+import { icons } from '../data/icons';
+
+const [first, ...rest] = hero.name.split(' ');
+const socials = [
+  {
+    label: 'Instagram',
+    href: INSTAGRAM_URL,
+    icon: icons.instagram,
+  },
+  {
+    label: 'LinkedIn',
+    href: LINKEDIN_URL,
+    icon: icons.linkedin,
+  },
+];
+---
+
+<section id="inicio" class="hero on-dark relative isolate overflow-hidden bg-ink text-paper">
+  <div aria-hidden="true" class="hero-bg absolute inset-0 -z-10"></div>
+
+  <div class="relative mx-auto grid max-w-7xl grid-cols-1 gap-x-8 px-4 lg:px-8 pb-3 pt-6 md:pb-10 land:grid-cols-2 land:items-center lg:min-h-[calc(100svh-var(--nav-rest-h))] lg:grid-cols-[1.05fr_1fr] lg:content-center lg:gap-x-20 lg:pb-4 lg:pt-5">
+    <!-- Retrato en arco, protagonista. Foco rust detrás como acento gráfico; sello sobre el foco, lejos de la cara -->
+    <div class="relative order-2 mx-auto mt-8 w-[88%] max-w-[26rem] pl-[8%] land:col-start-2 land:row-start-2 land:mt-4 land:w-[78%] land:max-w-[15rem] land:pl-[6%] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:ml-auto lg:mt-0 lg:max-w-none lg:w-[min(100%,calc((100svh-12rem)*0.7))] lg:self-center lg:pl-0">
+      <!-- Disco (IconScout) que gira sobre su propio eje, como si estuviera sonando -->
+      <img
+        src={vinyl}
+        alt=""
+        aria-hidden="true"
+        class="vinyl absolute -bottom-4 -left-[4%] aspect-square w-[62%] sm:-left-14 lg:-left-[20%] lg:bottom-[10%] lg:w-[68%]"
+      />
+      <div class="relative aspect-[7/10] overflow-hidden rounded-2xl bg-terracotta-dark shadow-[0_24px_48px_-20px_rgba(0,0,0,0.7)]">
+        <Image
+          src={heroPhoto}
+          alt={hero.photoAlt}
+          widths={[450, 640, 900]}
+          quality={72}
+          sizes="(min-width: 1152px) 560px, (min-width: 1024px) 48vw, (min-width: 640px) 416px, 84vw"
+          loading="eager"
+          fetchpriority="high"
+          class="skeleton h-full w-full object-cover object-[30%_30%]"
+        />
+      </div>
+
+      <!-- Sello circular: el texto gira, la claqueta queda quieta -->
+      <div
+        aria-hidden="true"
+        class="absolute -bottom-4 -left-[4%] size-24 rounded-full bg-paper shadow-lg sm:-left-14 lg:-bottom-4 lg:-left-[10%] lg:size-28 xl:size-32"
+      >
+        <svg viewBox="0 0 120 120" class="badge-ring absolute inset-0 size-full" focusable="false">
+          <defs>
+            <path id="badge-circle" d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0"></path>
+          </defs>
+          <text
+            font-size="11.3"
+            font-weight="800"
+            class="fill-ink"
+            font-family="'Avenir Next','Trebuchet MS','Segoe UI',system-ui,sans-serif"
+          >
+            <textPath href="#badge-circle" textLength="276" lengthAdjust="spacingAndGlyphs">
+              {hero.badge}
+            </textPath>
+          </text>
+        </svg>
+        <ClapperLottie class="absolute left-1/2 top-1/2 w-[50%] -translate-x-1/2 -translate-y-1/2" />
+      </div>
+    </div>
+
+    <!-- En celular el orden es: nombre, foto, detalles. En escritorio nombre y detalles van en la columna izquierda -->
+    <div class="relative z-10 order-1 pt-2 land:col-span-2 land:row-start-1 lg:col-span-1 lg:col-start-1 lg:row-start-1 lg:self-end">
+      <p
+        class="hero-in font-hand text-4xl font-bold text-paper lg:[font-size:clamp(2rem,5.2svh,3.75rem)]"
+        style="--d:0ms"
+      >
+        {hero.greeting}
+      </p>
+      <h1
+        class="hero-in font-display font-extrabold uppercase leading-[0.86] tracking-tight text-paper [font-size:clamp(2.6rem,19vw,5.75rem)] sm:[font-size:clamp(4rem,14vw,8rem)] land:[font-size:clamp(2.5rem,8.5vw,4.5rem)] lg:[font-size:clamp(3.25rem,min(11.5vw,14svh),10.5rem)]"
+        style="--d:80ms"
+      >
+        <span class="block land:inline">{first}</span> <span class="block land:inline">{rest.join(' ')}</span>
+      </h1>
+    </div>
+
+    <div class="relative z-10 order-3 mt-10 land:col-start-1 land:row-start-2 land:mt-4 lg:col-start-1 lg:row-start-2 lg:mt-0 lg:self-start lg:pb-4">
+      <ul
+        class="hero-in flex flex-col items-start gap-1 font-display text-xl font-extrabold leading-tight text-paper lg:mt-4 lg:gap-1 lg:[font-size:clamp(1.25rem,3.4svh,1.875rem)]"
+        style="--d:160ms"
+      >
+        {hero.roles.map((r) => (
+          <li class="flex items-center gap-3">
+            <span aria-hidden="true" class="size-2.5 shrink-0 rounded-full bg-butter lg:size-3" />
+            {r}
+          </li>
+        ))}
+      </ul>
+      <div class="hero-in mt-3" style="--d:240ms">
+        <p class="max-w-md text-xl leading-relaxed text-paper lg:max-w-xl lg:leading-normal lg:[font-size:clamp(1rem,2.7svh,1.25rem)]">
+          {hero.tagline}
+        </p>
+        <!-- Fila 1: Escribime + Ver CV. Fila 2: redes en círculos (celular y web) -->
+        <div class="mt-4 flex w-fit flex-col items-stretch gap-4 lg:mt-5 lg:grid lg:grid-cols-[14rem_14rem] lg:gap-3">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-3 sm:gap-x-6 lg:contents">
+            <LottiePill href="#contacto">{hero.cta}</LottiePill>
+            <LottiePill href={CV_URL} download="CV Michelle Banti.pdf">
+              {hero.cv}
+            </LottiePill>
+          </div>
+          <div class="flex items-center justify-start gap-6 lg:col-span-2">
+            {socials.map((s) => (
+              <a
+                href={s.href}
+                {...(s.href === '#'
+                  ? { 'aria-disabled': 'true', tabindex: -1 }
+                  : { target: '_blank', rel: 'noopener noreferrer' })}
+                aria-label={s.label}
+                class="group inline-flex h-10 items-center justify-center gap-2 rounded-full font-display text-base font-bold text-paper/70 transition-colors hover:text-butter aria-disabled:opacity-60"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  class="size-6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                  set:html={s.icon}
+                />
+                <span>{s.label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Luz cálida detrás del retrato + grano claro liviano (tile pequeño, sin filtro a pantalla completa) */
+  .hero-bg {
+    background:
+      var(--grain-light), radial-gradient(48rem 40rem at 75% 45%, var(--color-terracotta-dark) 0%, transparent 70%),
+      var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-in {
+      animation: hero-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      animation-delay: var(--d, 0ms);
+    }
+    .badge-ring {
+      animation: badge-spin 32s linear infinite;
+    }
+    .vinyl {
+      animation: badge-spin 6s linear infinite;
+    }
+    @keyframes hero-in {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+    }
+    @keyframes badge-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
+</style>

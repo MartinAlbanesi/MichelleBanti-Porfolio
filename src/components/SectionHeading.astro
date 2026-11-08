@@ -1,0 +1,12 @@
+---
+// Título de sección en un solo renglón, serif cursiva en negrita (estilo en .section-title). Un solo color: hereda de la sección.
+interface Props {
+  title: string;
+  id?: string;
+}
+const { title, id } = Astro.props;
+---
+
+<h2 id={id} class="section-title [font-size:clamp(2.5rem,8vw,5.5rem)]">
+  {title}
+</h2>

@@ -1,0 +1,46 @@
+# build output
+dist/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+
+# Original media (too large for git)
+src/assets/*.mp4
+src/assets/*.pdf
+
+.screenshots/
+
+# AI tooling / local config
+.agents/
+.atl/
+.claude/
+.opencode/
+.impeccable/
+.vscode/
+AGENTS.md
+CLAUDE.md
+
+# Internal docs (not for public)
+AUDIT-UX-UI.md
+portfolio_creativo_contrato_IA.md
+docs/
+src/assets/*.docx

@@ -1,0 +1,80 @@
+---
+import { goal } from '../data/content';
+import { Image } from 'astro:assets';
+import stepImage from '../assets/images.png';
+import SectionHeading from './SectionHeading.astro';
+
+// Estado de cada card (badge y/o fecha): mismo chip para los dos, con una parte grande y otra chica ("14 NOV", "EN CURSO").
+type Item = (typeof goal.items)[number];
+const chips = (item: Item) => {
+  const out: { big: string; small: string }[] = [];
+  if (item.badge) {
+    const [first, ...rest] = item.badge.split(' ');
+    out.push({ big: first.toUpperCase(), small: rest.join(' ') });
+  }
+  if (item.date) out.push({ big: item.date.day, small: item.date.month });
+  return out;
+};
+---
+
+<!-- Fondo crema a todo el ancho: corta con el papel de "Mi recorrido" y con el terracota de contacto -->
+<section id="hacia-donde-voy" class="bg-cream" aria-labelledby="meta-titulo">
+  <div class="mx-auto max-w-7xl px-4 py-8 md:py-10 lg:px-8">
+    <SectionHeading id="meta-titulo" title={goal.title} />
+    <p class="mt-4 max-w-3xl text-xl leading-snug text-ink/90 md:text-2xl">{goal.text}</p>
+
+    <!-- Próximos pasos. Cada card: título arriba a todo el ancho; debajo imagen cuadrada + texto; estado abajo a la derecha.
+       Desde lg (1024px) las dos cards van lado a lado y todo crece (título, imagen, texto, espacios); celular y tablet no cambian. -->
+    <ul class="mt-8 space-y-6 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0">
+      {goal.items.map((item) => (
+        <li class="step flex flex-col overflow-hidden rounded-xl bg-paper lg:rounded-2xl">
+          <h3 class="flex min-h-[calc(2.5em+1.5rem)] items-center bg-terracotta-dark px-4 py-3 font-display text-xl font-extrabold leading-tight text-cream sm:px-5 md:px-5 md:text-2xl lg:min-h-[calc(2.5em+2rem)] lg:px-8 lg:py-4 lg:text-4xl">
+            {item.title}
+          </h3>
+          <div class="grid flex-1 grid-cols-[auto_1fr] grid-rows-[1fr_auto] items-start gap-x-4 gap-y-3 p-4 sm:gap-x-6 sm:gap-y-4 md:p-5 lg:gap-x-10 lg:gap-y-8 lg:p-10">
+            <Image
+              src={stepImage}
+              alt=""
+              widths={[192, 256, 384, 512, 640]}
+              quality={72}
+              sizes="(min-width: 1280px) 16rem, (min-width: 1024px) 13rem, (min-width: 768px) 8rem, (min-width: 640px) 7rem, 6rem"
+              class="skeleton size-24 rounded-xl object-cover sm:size-28 sm:rounded-2xl md:size-32 lg:size-52 lg:rounded-3xl xl:size-64"
+            />
+            <p class="min-w-0 self-center text-base leading-relaxed md:text-lg lg:text-2xl lg:leading-relaxed xl:text-[1.7rem]">
+              {item.text}
+            </p>
+            <div class="col-span-2 flex items-center gap-3 justify-self-end">
+              {chips(item).map((c) => (
+                <p class="rounded-md bg-cream px-3 py-0.5 font-display text-lg font-extrabold uppercase leading-none text-terracotta-dark lg:px-5 lg:py-1.5 lg:text-3xl">
+                  {c.big}
+                  {c.small && ` ${c.small}`}
+                </p>
+              ))}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Hover: la tarjeta sube y gana la sombra dura de la marca; el placeholder de imagen se inclina un poco */
+  @media (prefers-reduced-motion: no-preference) {
+    .step {
+      transition:
+        transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+        box-shadow 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .step:hover {
+      transform: translateY(-4px);
+      box-shadow: 6px 7px 0 color-mix(in srgb, var(--color-ink) 40%, transparent);
+    }
+    .step img {
+      transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .step:hover img {
+      transform: rotate(-2deg) scale(1.03);
+    }
+  }
+</style>

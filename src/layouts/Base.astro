@@ -1,0 +1,72 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Ruta de la imagen para compartir (ej. "/og.jpg"). Opcional. */
+  image?: string;
+}
+
+const { title, description, image } = Astro.props;
+// TODO: definir `site` en astro.config.mjs (dominio real) para activar canonical y og:image.
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const ogImage = image && Astro.site ? new URL(image, Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="light" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta name="twitter:card" content="summary_large_image" />}
+    <meta name="theme-color" content="#DDD8BA" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-paper focus-visible:outline-paper"
+    >
+      Saltar al contenido
+    </a>
+    <slot />
+    <script>
+      // Loader de imágenes (.skeleton, en la imagen o en su contenedor): se quita al cargar.
+      // Si la carga falla, la imagen se oculta (sin ícono roto ni texto alternativo encima) y queda el loader.
+      const done = (img: HTMLImageElement) => {
+        img.style.visibility = '';
+        img.closest('.skeleton')?.classList.remove('skeleton');
+      };
+      document.addEventListener(
+        'load',
+        (e) => {
+          if (e.target instanceof HTMLImageElement) done(e.target);
+        },
+        true,
+      );
+      document.addEventListener(
+        'error',
+        (e) => {
+          if (e.target instanceof HTMLImageElement && e.target.closest('.skeleton'))
+            e.target.style.visibility = 'hidden';
+        },
+        true,
+      );
+      document.querySelectorAll('img').forEach((img) => {
+        if (!img.complete) return;
+        if (img.naturalWidth) done(img);
+        else if (img.closest('.skeleton')) img.style.visibility = 'hidden';
+      });
+    </script>
+  </body>
+</html>
