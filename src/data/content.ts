@@ -6,32 +6,26 @@ export const meta = {
     'Michelle Banti: productora audiovisual para canales de streaming, periodista digital y creadora de contenido.',
 };
 
-export const nav = [
-  { href: '#quien-soy', label: 'Quién soy' },
-  { href: '#ahora', label: 'Dónde estoy' },
-  { href: '#recorrido', label: 'Mi recorrido' },
-  { href: '#hacia-donde-voy', label: 'Hacia dónde voy' },
-];
-
 export const hero = {
   name: 'Michelle Banti',
   greeting: 'Hola, soy',
   cta: 'Escribime',
   cv: 'Ver CV',
-  roles: ['Productora audiovisual', 'Periodista digital'],
+  roles: ['Periodista y productora'],
   tagline:
     'Soy una pensadora multitasking, me encanta ordenar ideas hasta que se vuelven proyectos, produzco, aprendo y organizo para que se vuelvan realizables.',
   photoAlt: 'Michelle sacándose una selfie con palo de selfie, sonriendo, sobre un fondo beige.',
-  badge: 'PERIODISMO DIGITAL  ·  PRODUCCIÓN AUDIOVISUAL  ·  ',
+  badge: 'PERIODISMO DIGITAL  ·  PRODUCCIÓN AUDIOVISUAL  ·  ',
 };
 
 export const about = {
   who: {
     title: 'Quién soy',
     paragraphs: [
-      'Tengo 26 años, vivo en CABA y soy estudiante avanzada en Eter, este año me recibo {grad}. LUZU fue mi inspiración: verlos despertó mi interés por la comunicación digital.',
-      'Probé ser community manager en 2022 y entendí que lo mío no era administrar redes de otros y busqué mi rumbo.',
-      'Soy perseverante, curiosa, organizada y sociable. Me gusta motivar y sumar gente a las ideas, y disfruto compartir todo lo que aprendo para ayudar a quien sea.',
+      '**Soy perseverante, curiosa, organizada y sociable.** Me gusta motivar y sumar gente a las ideas, disfruto compartir todo lo que aprendo para ayudar a quien sea.',
+      'Tengo 26 años, este año me recibo de **Periodista y productora de contenidos** en Eter. **LUZU** fue mi inspiración: verlos despertó mi interés por la comunicación digital.',
+      'En 2022 inicié como **CM**  y descubrí que lo mío no era solo administrar cuentas en redes, entonces busqué mi rumbo...',
+
     ],
     // Una por foto de la pila (mismo orden que en About.astro)
     photoAlts: [
