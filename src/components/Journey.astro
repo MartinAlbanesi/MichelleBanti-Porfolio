@@ -9,7 +9,15 @@ import { journey } from '../data/content';
 import EterShowcase from './EterShowcase.astro';
 
 const [ml, eter] = journey.projects;
-// Fila 3: fotos de Eter (el recorte "pos" centra a Michelle en cada una)
+
+const meliPhotos = [
+  {
+    src: camara,
+    pos: '30% 40%',
+    alt: 'Michelle sacando una foto con una cámara réflex, con una campera roja y blanca, rodeada de cajas.',
+  },
+  { src: experience, pos: '70% 50%', alt: "Michelle posando frente al cartel de MercadoLibre Experience '25." },
+];
 const eterPhotos = [
   {
     src: eterStream,
@@ -25,14 +33,11 @@ const eterPhotos = [
 ];
 ---
 
-<!-- Bento de 6 columnas. Celular = pila (texto, fotos de a dos, etc.). lg+ = 3 filas:
-     1) foto cámara | MercadoLibre + texto | foto Experience
-     2) Eter + texto | videos (doble ancho)
-     3) tres fotos (por ahora, espacios reservados) -->
-<div class="grid grid-cols-6 gap-4 lg:gap-7">
-  <article id={ml.id} class="tile tile-dark col-span-6 lg:col-span-2 lg:col-start-3 lg:row-start-1">
-    <h3 class="title no-bar">{ml.title}</h3>
-    <!-- Línea de marca con el período a su derecha -->
+<!-- Un bloque por etapa, texto + medio, alternando de lado en escritorio. Celular: pila (texto, luego medio).
+     Fotos siempre en 4:5 (su proporción natural de retrato), nunca apaisadas. -->
+<div class="grid grid-cols-6 gap-4 lg:grid-cols-12 lg:gap-7">
+  <article id={ml.id} class="tile tile-dark col-span-6 lg:col-span-5">
+    <h3 class="title">{ml.title}</h3>
     <p class="rule">{ml.tag}</p>
     <div class="body">
       {ml.paragraphs.map((p) => (
@@ -40,63 +45,45 @@ const eterPhotos = [
       ))}
     </div>
   </article>
-
-  <div class="tile tile-dark frame flex col-span-3 lg:col-span-2 lg:col-start-1 lg:row-start-1">
-    <button type="button" class="photo zoomable skeleton" aria-label="Ampliar foto">
+  <div class="col-span-6 grid grid-cols-2 gap-4 lg:col-span-7 lg:gap-7">
+  {meliPhotos.map((p) => (
+    <button type="button" class="pic zoomable skeleton" aria-label="Ampliar foto">
       <Image
-        src={camara}
-        alt="Michelle sacando una foto con una cámara réflex, con una campera roja y blanca, rodeada de cajas."
-        widths={[360, 540, 720, 1080]}
+        src={p.src}
+        alt={p.alt}
+        widths={[320, 480, 720, 1080]}
         quality={72}
-        sizes="(min-width: 1024px) 30vw, 45vw"
-        style="object-position: 30% 40%"
+        sizes="(min-width: 1024px) 26vw, 45vw"
+        style={`object-position:${p.pos}`}
       />
     </button>
-  </div>
-  <div class="tile tile-dark frame flex col-span-3 lg:col-span-2 lg:col-start-5 lg:row-start-1">
-    <button type="button" class="photo zoomable skeleton" aria-label="Ampliar foto">
-      <Image
-        src={experience}
-        alt="Michelle posando frente al cartel de MercadoLibre Experience '25."
-        widths={[360, 540, 720, 1080]}
-        quality={72}
-        sizes="(min-width: 1024px) 30vw, 45vw"
-        style="object-position: 70% 50%"
-      />
-    </button>
+  ))}
   </div>
 
-  <article id={eter.id} class="tile tile-light col-span-6 lg:col-span-2 lg:col-start-1 lg:row-start-2">
+  <!-- Eter: video a la izquierda en escritorio (alterna con MercadoLibre); en celular, texto primero -->
+  <article id={eter.id} class="on-light tile tile-light col-span-6 lg:order-2 lg:col-span-5">
     <h3 class="title">{eter.title}</h3>
+    <p class="rule">{eter.tag}</p>
     <div class="body">
       {eter.paragraphs.map((p) => (
         <p>{p}</p>
       ))}
     </div>
   </article>
-  <!-- Videos: sin relleno, la vista previa llega hasta los bordes de la tarjeta -->
-  <div class="tile tile-video flex col-span-6 lg:col-span-4 lg:col-start-3 lg:row-start-2">
+  <div class="tile tile-video col-span-6 flex lg:order-1 lg:col-span-7">
     <EterShowcase />
   </div>
-
   {eterPhotos.map((p) => (
-    <div class="tile tile-media frame col-span-2 lg:row-start-3">
-      <button
-        type="button"
-        class="zoomable skeleton relative block aspect-[4/5] w-full overflow-hidden"
-        aria-label="Ampliar foto"
-      >
-        <Image
-          src={p.src}
-          alt={p.alt}
-          widths={[320, 480, 640, 1080]}
-          quality={72}
-          sizes="(min-width: 1024px) 30vw, 30vw"
-          class="absolute inset-0 h-full w-full object-cover"
-          style={`object-position:${p.pos}`}
-        />
-      </button>
-    </div>
+    <button type="button" class="pic zoomable skeleton col-span-2 lg:order-3 lg:col-span-4" aria-label="Ampliar foto">
+      <Image
+        src={p.src}
+        alt={p.alt}
+        widths={[320, 480, 640, 1080]}
+        quality={72}
+        sizes="(min-width: 1024px) 30vw, 30vw"
+        style={`object-position:${p.pos}`}
+      />
+    </button>
   ))}
 </div>
 
@@ -164,38 +151,47 @@ const eterPhotos = [
 </script>
 
 <style>
+  /* Mismo radio que el resto de las cards del sitio (rounded-xl) en textos, video y fotos */
+  .tile,
+  .pic {
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
   .tile {
-    position: relative;
     padding: 1.25rem;
   }
   .tile-dark {
-    background: var(--color-terracotta-dark);
-    color: var(--color-paper);
-    --accent: var(--color-paper);
+    background: var(--color-ink);
+    color: var(--color-cream);
+    --accent: var(--color-gravel);
   }
   .tile-light {
-    background: var(--color-cream);
+    background: var(--color-gravel);
     color: var(--color-ink);
-    --accent: var(--color-rust);
+    --accent: var(--color-ink);
   }
-  /* Fotos: sin marco, llenan la tarjeta completa */
-  .tile.frame {
+  /* Video: el contenido llega hasta el borde */
+  .tile-video {
     padding: 0;
+    background: var(--color-ink);
+    color: var(--color-cream);
   }
-  /* Foto que llena su marco: en celular con proporción fija; en lg+ se estira a la altura de la fila */
-  .photo {
+  .pic {
     position: relative;
-    flex: 1;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-  }
-  .zoomable {
     display: block;
-    cursor: zoom-in;
+    aspect-ratio: 4 / 5;
     padding: 0;
+    cursor: zoom-in;
+  }
+  .pic :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   @media (min-width: 1024px) {
-    .zoomable {
+    .pic {
       cursor: default;
     }
   }
@@ -221,64 +217,32 @@ const eterPhotos = [
     height: 100%;
     object-fit: contain;
   }
-  .photo :global(img) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  /* Medio: sin borde ni cinta, solo la sombra dura de las demás tarjetas */
-  .tile-media {
-    padding: 0;
-    background: var(--color-cream);
-    color: var(--color-ink);
-  }
-  /* Tarjeta de video: el contenido llega hasta el borde */
-  .tile-video {
-    padding: 0;
-    background: var(--color-ink);
-    color: var(--color-cream);
-    overflow: hidden;
-  }
-  /* Título acentuado: más grande y con barra de acento debajo */
   .title {
     font-family: var(--font-display);
-    font-size: 2.25rem;
-    font-weight: 800;
+    font-size: 2rem;
+    font-weight: 700;
     line-height: 1.05;
-    text-transform: uppercase;
+    letter-spacing: -0.025em;
     overflow-wrap: anywhere;
   }
-  .title::after {
-    content: '';
-    display: block;
-    width: 3.5rem;
-    height: 0.35rem;
-    margin-top: 0.6rem;
-    background: var(--accent);
-    transform: skewX(-20deg);
-  }
-  .title.no-bar::after {
-    display: none;
-  }
+  /* Línea de marca con el período a su derecha */
   .rule {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     margin-top: 0.6rem;
     font-family: var(--font-display);
-    font-size: 0.875rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
   }
   .rule::before {
     content: '';
     flex: none;
-    width: 3.5rem;
-    height: 0.35rem;
+    width: 2.5rem;
+    height: 2px;
     background: var(--accent);
-    transform: skewX(-20deg);
   }
   .body {
     margin-top: 1rem;
@@ -291,25 +255,16 @@ const eterPhotos = [
     .tile {
       padding: 1.5rem;
     }
-    .tile-media,
-    .tile.frame {
-      padding: 0;
-    }
     .tile-video {
       padding: 0;
     }
     .title {
-      font-size: 3rem;
+      font-size: 2.5rem;
     }
   }
-  /* Tres columnas: los títulos se achican para que "MercadoLibre" entre en un tercio del ancho */
   @media (min-width: 1024px) {
-    .photo {
-      aspect-ratio: auto;
-      min-height: 18rem;
-    }
     .title {
-      font-size: clamp(1.6rem, 2.4vw, 2.4rem);
+      font-size: clamp(1.75rem, 2.8vw, 2.75rem);
     }
   }
 </style>

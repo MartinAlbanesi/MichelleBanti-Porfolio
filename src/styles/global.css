@@ -1,33 +1,37 @@
 @import 'tailwindcss';
+/* Bricolage Grotesque variable (peso 200-800), autoalojada: ~41 KB el subset latino, sin servicios externos */
+@import '@fontsource-variable/bricolage-grotesque';
 
 /* Celular acostado: ancho de teléfono, poca altura */
 @custom-variant land (@media (orientation: landscape) and (max-height: 540px) and (max-width: 1023.98px));
 
-@theme {
-  --color-paper: #ddd8ba;
-  --color-cream: #f1edd6;
-  --color-terracotta: #8e4f36;
-  --color-terracotta-dark: #7a3f29;
-  --color-rust: #a0471c;
-  --color-ink: #231a14;
-  /* Amarillo suave: acento sobre fondos oscuros (botón Escribime, redes, enlaces) */
-  --color-butter: #f4d56b;
+/* static: emite siempre todas las variables, aunque solo se usen desde <style> de un componente (si no, el fondo queda transparente) */
+@theme static {
+  /* Tema oscuro. Paleta de la dueña (Sweet Cream, Red Gravel, Terrarium, Saving Light, Charred Brown).
+     cream sobre ink 14.4:1, sobre wine 12.3:1, sobre brown 7.7:1. Texto de botones: blanco (sobre brown 9.1:1).
+     gravel: acento; como texto sobre ink 5.6:1 / wine 4.8:1; como fondo, con texto ink (5.6:1). Nunca crema sobre gravel (2.6:1). */
+  --color-ink: #400007; /* Charred Brown: fondo base */
+  --color-wine: #59000f; /* Saving Light: secciones alternas */
+  --color-brown: #753707; /* Tostado (primera paleta): reemplaza a Terrarium. crema 7.7:1, blanco 9.1:1 */
+  --color-gravel: #b7896c;
+  --color-sand: #e3cfc2; /* Rosa arena: Sweet Cream + Red Gravel. Fondo de Quién soy (ink 11.4:1, wine 9.8:1) */
+  --color-cream: #f0eae7; /* Sweet Cream: texto y superficies claras (polaroids) */
 
-  /* Fuentes del sistema: 0 KB, sin carga externa */
-  --font-display: 'Avenir Next', 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
-  --font-body: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, Georgia, serif;
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-body: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  /* Manuscrita del sistema: solo el saludo del hero */
   --font-hand: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive;
 }
 
 @layer base {
   :root {
-    /* Grano claro para fondos oscuros (hero): tile SVG diminuto, no un filtro a pantalla completa */
-    --grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .87 0 0 0 0 .85 0 0 0 0 .73 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
+    /* Grano claro para el hero: tile SVG diminuto, no un filtro a pantalla completa */
+    --grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .94 0 0 0 0 .92 0 0 0 0 .9 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.14'/%3E%3C/svg%3E");
+    color-scheme: dark;
   }
   html {
     scroll-behavior: smooth;
   }
-  /* Pantallas grandes: todo lo que está en rem crece con la pantalla */
   @media (min-width: 1536px) {
     html {
       font-size: 112.5%;
@@ -46,13 +50,15 @@
 
   body {
     font-family: var(--font-body);
+    color: var(--color-cream);
+    background-color: var(--color-ink);
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: var(--color-gravel);
     color: var(--color-ink);
-    background-color: var(--color-paper);
-    /* Grano liviano: tile SVG diminuto repetido, no un filtro a pantalla completa */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .14 0 0 0 0 .1 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
   }
 
-  /* Sin barra fija: solo respeta el notch */
   [id],
   :focus-visible {
     scroll-margin-top: env(safe-area-inset-top);
@@ -63,44 +69,41 @@
   h3 {
     text-wrap: balance;
   }
-  /* Se hereda: evita palabras solas al final también en listas, tarjetas y botones */
-  body {
-    text-wrap: pretty;
-  }
   a,
   button {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
+  a[href],
+  button:not(:disabled),
+  [role='button'] {
+    cursor: pointer;
+  }
 
+  /* Foco: crema sobre los fondos oscuros; ink sobre superficies claras (.on-light) */
   :focus-visible {
-    outline: 3px solid var(--color-rust);
+    outline: 3px solid var(--color-cream);
     outline-offset: 3px;
   }
-  /* Sobre fondo oscuro el rust no llega a 3:1: anillo en papel */
-  .on-dark :focus-visible {
-    outline-color: var(--color-paper);
+  .on-light :focus-visible {
+    outline-color: var(--color-ink);
   }
-  /* Sections focused by in-page links (tabindex=-1) are not interactive: no ring around the whole section */
   [tabindex='-1']:focus-visible {
     outline: none;
   }
 }
 
-/* Loader de imágenes: brillo que cruza mientras la imagen (o la animación) no cargó.
-   El script de Base.astro lo quita al cargar; si la carga falla, queda el placeholder. */
 @layer components {
   .skeleton {
-    background-color: color-mix(in srgb, var(--color-terracotta-dark) 30%, transparent);
+    background-color: color-mix(in srgb, var(--color-cream) 10%, transparent);
     background-image: linear-gradient(
       100deg,
       transparent 30%,
-      color-mix(in srgb, var(--color-cream) 25%, transparent) 50%,
+      color-mix(in srgb, var(--color-cream) 18%, transparent) 50%,
       transparent 70%
     );
     background-size: 220% 100%;
   }
-  /* Mientras carga, el texto alternativo no se dibuja encima del loader */
   img.skeleton,
   .skeleton img {
     color: transparent;
@@ -118,16 +121,64 @@
       background-position: -110% 0;
     }
   }
-}
 
-/* Título de sección: grande, con mayúscula inicial y un solo color (el del texto de la sección). */
-@layer components {
   .section-title {
-    font-family: var(--font-body);
-    font-style: italic;
-    font-size: clamp(2.75rem, 7.5vw, 4.75rem);
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 6vw, 4.25rem);
     font-weight: 700;
-    line-height: 0.92;
-    letter-spacing: -0.02em;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+  }
+
+  /* Botones: texto blanco. primary = fondo brown; ghost = contorno. Al llenarse en crema, el texto pasa a bordó (ink) */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      border-color 0.2s,
+      translate 0.2s;
+  }
+  .btn:active {
+    translate: 0 1px;
+  }
+  .btn-primary {
+    background: var(--color-brown);
+    color: #fff;
+  }
+  .btn-ghost {
+    border-color: currentColor;
+    color: #fff;
+  }
+  .btn-primary:hover,
+  .btn-ghost:hover {
+    background: var(--color-cream);
+    border-color: var(--color-cream);
+    color: var(--color-ink);
+  }
+  /* Sobre fondos claros (crema): contorno y texto bordó; al pasar se llena en bordó con texto crema */
+  .btn-ink {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+  .btn-ink:hover {
+    background: var(--color-ink);
+    color: var(--color-cream);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn {
+      transition: none;
+    }
   }
 }

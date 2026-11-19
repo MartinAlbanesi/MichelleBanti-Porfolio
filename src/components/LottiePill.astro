@@ -18,7 +18,7 @@ const { class: className, icon, animated = true, ...attrs } = Astro.props;
 <a
   data-pill
   class:list={[
-    'pill group relative isolate inline-flex items-center justify-center gap-2 rounded-full text-ink',
+    'pill group relative isolate inline-flex items-center justify-center gap-2 rounded-full text-white',
     // Por defecto (hero): igual que "Hola, soy": manuscrita, negrita (700, no trae 800), sin mayúsculas forzadas
     className ?? 'font-hand font-bold h-14 w-36 text-xl sm:w-52 lg:h-[clamp(3rem,8svh,4rem)] lg:w-56 lg:text-2xl',
   ]}
@@ -29,7 +29,7 @@ const { class: className, icon, animated = true, ...attrs } = Astro.props;
     data-pill-bg
     class:list={[
       'absolute inset-0 -z-10 rounded-full',
-      animated ? 'bg-butter' : 'bg-paper transition-colors group-hover:bg-cream',
+      animated ? 'bg-brown' : 'bg-brown transition-colors group-hover:bg-cream group-hover:text-ink',
     ]}
   ></span>
   {animated && (

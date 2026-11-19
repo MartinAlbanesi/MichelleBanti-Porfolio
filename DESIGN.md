@@ -1,85 +1,53 @@
 # Design System: Michelle Banti Portfolio
 
-Single-page portfolio for an audiovisual producer. Direction: **scrapbook / film set**. Warm, tactile, handmade, with hard offset shadows, skewed accents and film motifs. Minimal ornament: no dashed borders, no tape, no glow.
+Single-page portfolio for an audiovisual producer. **Dark, warm and personal**: deep burgundy surfaces, one grotesque typeface, large photos, and the IconScout pieces (vinyl, clapper stamp, animated pills, envelope) as personal touches. Sections are full-bleed surfaces that alternate dark and light, so every boundary is a clean full-width cut. Dial: ENERGY 2 / RHYTHM 2 / MOTION 2.
 
-## 1. Color
+## Color
 
-Defined as `@theme` tokens in `src/styles/global.css`.
+`@theme static` tokens in `src/styles/global.css` (static so a colour used only from a component `<style>` is always emitted). Palette from the owner.
 
-| Token | Hex | Role |
+| Token | Hex | Use |
 |---|---|---|
-| `paper` | `#DDD8BA` | Page background (with light SVG grain), text on dark |
-| `cream` | `#F1EDD6` | Light cards, media frames, "Quién soy" and "Mi recorrido" section background |
-| `terracotta` | `#8E4F36` | Hero/section brand surface |
-| `terracotta-dark` | `#7a3f29` | Dark cards, secondary text accents |
-| `rust` | `#A0471C` | Accent: focus ring, play button, skewed bars, vinyl label |
-| `ink` | `#231a14` | Body text, footer, hard shadows (at 40% alpha) |
+| `ink` | `#400007` Charred Brown | Page base (hero, Hacia dónde voy, teatro slide, footer), MercadoLibre tile, text on light surfaces |
+| `wine` | `#59000F` Saving Light | Mi recorrido; title and highlights in Quién soy; "Ver proyecto" pill |
+| `brown` | `#753707` Tostado | BANCA slide, button fills, phone screen gradient |
+| `gravel` | `#B7896C` Red Gravel | Accent: hero roles, Eter tile, "En curso" chip, envelope circle, text selection |
+| `sand` | `#E3CFC2` Rosa arena | Quién soy background |
+| `cream` | `#F0EAE7` Sweet Cream | Text on dark, polaroid frames, badge, Contacto background |
 
-Rules:
-- Dark surfaces (`terracotta*`, `ink`) use `paper` text. Light surfaces use `ink` text.
-- `rust` does not reach 3:1 on dark backgrounds: use `paper` for focus rings there (`.on-dark`).
-- Photo frames match the color of the adjacent text card.
+Verified contrast: cream on ink 14.4 / wine 12.3 / brown 7.7; white on brown 9.1 / wine 14.7; ink on sand 11.4, wine on sand 9.8; ink on cream 14.4; gravel text on ink 5.6. **Never cream or white text on gravel (2.6 / 3.1).** Focus ring cream; ink inside `.on-light`.
 
-## 2. Typography
+## Typography
 
-System fonts only (0 KB).
+- Bricolage Grotesque variable, self-hosted (`@fontsource-variable/bricolage-grotesque`, ~41 KB latin) for display and body.
+- `font-hand` (Segoe Print): only "Hola, soy" (cream, like the name) and the animated pills.
+- Hero name uppercase extrabold, up to 10.5rem. `.section-title` 700, `clamp(2.25rem, 6vw, 4.25rem)`, tracking -0.035em, identical in every section.
 
-| Role | Stack | Use |
-|---|---|---|
-| `font-display` | Avenir Next, Trebuchet MS, Segoe UI, system-ui | Headings, nav, buttons, labels. Weight 700-800, often uppercase |
-| `font-body` | Charter, Sitka Text, Cambria, Georgia | Paragraphs (serif, 1.125rem, line-height 1.625) |
-| `font-hand` | Segoe Print, Bradley Hand, Comic Sans MS | Hero greeting, nav accents, captions. Sparingly |
+## Sections
 
-Scale:
-- Hero name: uppercase, extrabold, `leading-[0.86]`, fluid `clamp()` up to 9.5rem.
-- Section H2: `text-3xl/4xl` (Dónde estoy, Mi recorrido), `text-4xl/5xl` (Quién soy, Hacia dónde voy), `text-5xl/6xl` (Escribime).
-- Card title: 2.25rem mobile, 3rem md+, uppercase, 800, `line-height 1.05`.
-- `text-wrap: balance` on headings, `pretty` on paragraphs.
-- Root font size scales up at 1536px (112.5%) and 1920px (125%).
+Container `max-w-7xl`, `px-4`/`lg:px-8`, mobile first (md 768, lg 1024).
 
-## 3. Signature elements
+- **Hero (ink, wine radial glow, light grain):** greeting, name, roles (gravel), tagline, LottiePill CTAs (brown, white text). Tall 3:5 portrait (rounded-2xl) with vinyl behind, clapper stamp on the vinyl, and the social phone peeking right (screen gradient clay > brown > wine with a glass highlight, white icons).
+- **Quién soy (sand, `.on-light`):** ink paragraphs, wine title and bold highlights; polaroid stack (cream frames, tilted, cycles every 3.5 s, pauses on hover/focus).
+- **Dónde estoy:** one project per screen in a horizontal carousel, each slide its own colour (BANCA brown, teatro ink); collage of tilted card, perspective wide photo and circle logo; next slide peeks on desktop. "Ver proyecto" sits on the collage corner on lg+, below the collage on mobile/tablet.
+- **Mi recorrido (wine):** text tile + media per stage, alternating on lg (5 + 7 of 12), stacked on mobile; 4:5 photos; EterShowcase video carousel with pause. Its index: the current dot stretches into a pill that fills over the 4 s auto-advance (stays full when stopped).
+- **Hacia dónde voy (ink):** each step is status chip + title + text, then its vertical photos in an equal 3:4 grid (2 per row on mobile, 4 on md+). Photos via `photos` (`file` + `alt`) in `content.ts`, from `src/assets/hacia-donde-voy/`; a step without photos shows text only. Steps without content stay commented out in `content.ts`.
+- **Contacto (cream, `.on-light`):** section title with the envelope Lottie, ink/25 divider, Email and WhatsApp in two equal columns (icon label, large underlined value; email wraps before the @), `.btn-ink` "Copiar email" with live feedback.
 
-- **Hard offset shadow:** `6px 7px 0 rgb(35 26 20 / .4)` (cards), `7px 8px 0` (Dónde estoy). No blur.
-- **Skewed accent bar:** `skewX(-20deg)`, 3.5rem x 0.35rem under card titles, color `--accent` (`paper` on dark cards, `rust` on light). Also a small `h-3 w-1.5` skewed rust marker beside hero roles and nav.
-- **Polaroid tilt:** photos rotated slightly (`--tilt`, e.g. -3deg).
-- **Vinyl:** hero decoration behind the portrait (grooves, conic highlights, rust label with paper hole) plus a rotating dashed ring.
-- **Film motifs:** `FilmStrip` divider, `Clapperboard` icon.
-- **Grain:** tiny repeated SVG noise tile on `body`, never a full-screen filter.
+## Components
 
-## 4. Layout
+- Radius: cards, photos, posters, video `rounded-xl`; hero portrait `rounded-2xl`; pills `rounded-full`; chips 0.375rem.
+- Buttons have white text. `.btn-primary` brown fill and `.btn-ghost` outline both fill cream with ink text on hover. `.btn-ink` (light surfaces): ink outline/text, fills ink with cream text. "Ver proyecto": wine, white text and ring, hover cream with ink text.
+- Status chips: En curso gravel, Próximo cream, Hecho ink with cream outline.
 
-- Container: `max-w-5xl`, `px-4`. Mobile first; breakpoints md 768, lg 1024.
-- Vertical rhythm is tight: sections use `py-6 md:py-8` to `py-10 md:py-14`.
-- **Bento grid** (Mi recorrido): 1 column on mobile (text then media), 12 columns on md+. Row 1: 7 (text) + 5 (photos). Row 2: 5 (text) + 7 (video carousel). Gap 1.5rem / 1.75rem.
-- **Dónde estoy:** two square cards. Title and Instagram icon sit in a bottom overlay (`from-ink/90 via-ink/60 to-transparent`).
-- Sticky nav, compact bar 4rem; on small screens the resting index stacks the 5 pills.
-- Landscape phones: custom `land` variant (max-height 540px).
+## Motion
 
-## 5. Components
+- Hero vinyl (6 s/turn), badge ring (32 s/turn) and clapper loop continuously from load: owner's decision over the antislop 5 s pause rule.
+- Envelope plays to frame 120 (4.8 s), replays when the pointer enters Contacto.
+- Hero entrance, phone peek, polaroid cycle, carousel fade. All decorative motion stops under `prefers-reduced-motion`.
 
-- **Tile:** padding 1.25rem (1.5rem md), hard shadow. Variants: `tile-dark` (terracotta-dark / paper), `tile-light` (cream / ink), `tile-media` and `frame` (padding 0.75rem, photo-only).
-- **CastCrossfade:** CSS-only crossfade of 2 or 3 photos (6 s or 9 s cycle), first photo shown under reduced motion. Per-image `object-position`.
-- **EterShowcase carousel:** scroll-snap, hidden scrollbar, YouTube facade (thumbnail plus rust round play button, `youtube-nocookie` iframe on click). Autoplay every 4 s; pauses on playing video, mouse hover, off-screen, hidden tab or reduced motion. Inactive slides fade and scale to .94 (0.5 s). Controls: borderless chevrons at both ends of the dots, 44px targets, 60% opacity (100% on hover/focus). Dots are outlined circles, filled when current.
-- **Instagram link (`.ig`):** icon only, opacity .8, hover scale 1.18, rotate -6deg and soft glow.
-- **Hero social links:** plain text/icon, no glow.
-- **PillCta:** rounded-full paper pill with trailing round arrow, `min-h-14`.
-- **Footer:** `ink` background, paper text, centered.
+## Don'ts
 
-## 6. Motion
-
-- Subtle only: hero entrance (`hero-in`), crossfades, carousel fade/scale, hover lift `-translate-y-0.5`.
-- Everything is wrapped in `prefers-reduced-motion: no-preference`; reduced motion shows static first frames and disables autoplay and smooth scroll.
-
-## 7. Accessibility
-
-- Focus: 3px `rust` outline, offset 3px; `paper` on dark.
-- Touch targets 44px or more; `touch-action: manipulation`.
-- Carousel: `role="region"`, `aria-roledescription`, slide groups labeled "n de N", `inert` on inactive slides, `aria-live` switched off during autoplay.
-- Decorative images use `alt=""`; photo groups use `role="img"` with a descriptive `aria-label`.
-- Scroll margin accounts for the sticky nav and safe-area inset.
-
-## 8. Don'ts
-
-- No dashed card borders, no tape, no texture overlays on cards, no big outline years, no glow on social links.
-- No external fonts or heavy full-screen filters.
-- Don't put UI labels above card titles in "Dónde estoy".
+- No cream/white text on gravel; no reduced-opacity text on mid tones.
+- No film-strip divider, dashed borders, bento mosaics or eyebrow labels above titles.
+- No green, pink, violet, light blue or pastels.

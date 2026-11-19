@@ -14,8 +14,8 @@ export const hero = {
   roles: ['Periodista y productora'],
   tagline:
     'Soy una pensadora multitasking, me encanta ordenar ideas hasta que se vuelven proyectos, produzco, aprendo y organizo para que se vuelvan realizables.',
-  photoAlt: 'Michelle sacándose una selfie con palo de selfie, sonriendo, sobre un fondo beige.',
   badge: 'PERIODISMO DIGITAL  ·  PRODUCCIÓN AUDIOVISUAL  ·  ',
+  photoAlt: 'Michelle sacándose una selfie con palo de selfie, sonriendo, sobre un fondo beige.',
 };
 
 export const about = {
@@ -41,19 +41,35 @@ export const about = {
 export const goal = {
   title: 'Hacia dónde voy',
   text: 'No tengo todas las respuestas sobre lo que se viene, pero sí muchas ganas de seguir aprendiendo y descubriendo nuevas oportunidades.',
-  // Cada paso: imagen a la izquierda, título + descripción al centro, estado (y fecha opcional) a la derecha.
+  // Cada paso: estado ('Próximo', 'En curso' o 'Hecho') y fecha opcional. Al terminar uno, cambiar su estado a 'Hecho'.
+  // Fotos (verticales): guardarlas en src/assets/hacia-donde-voy/ y listarlas en "photos" con la ruta desde esa carpeta
+  // y una descripción breve (alt). Sin fotos, el paso se muestra solo con el texto.
   items: [
-    {
-      title: 'Curso de dirección y técnica',
-      text: 'Dictado por el Pulpo Díaz en la Academia de Resumido.',
-      badge: 'En curso',
-    },
+    // Oculto hasta tener fotos y contenido:
+    // {
+    //   title: 'Curso de dirección y técnica',
+    //   text: 'Dictado por el Pulpo Díaz en la Academia de Resumido.',
+    //   status: 'En curso',
+    // },
     {
       title: 'Seminario de producción de stream y podcast',
       text: 'Seminario intensivo presencial, el 14 de noviembre.',
-      date: { day: '14', month: 'Nov' },
+      status: 'Hecho',
+      date: '14 Nov',
+      photos: [
+        { file: 'seminario/1-RESU.jpg', alt: 'Michelle sonríe con la credencial del seminario en la mano' },
+        { file: 'seminario/2-RESU.jpg', alt: 'Michelle, de espaldas, filma con el celular en un estabilizador dentro del estudio de Resumido' },
+        { file: 'seminario/3-RESU.jpg', alt: 'Estudio de Resumido durante la grabación de un programa en vivo' },
+        { file: 'seminario/4-RESU.jpg', alt: 'Michelle muestra un recuerdo del seminario, con la credencial colgada' },
+      ],
     },
-  ] as { title: string; text: string; badge?: string; date?: { day: string; month: string } }[],
+  ] as {
+    title: string;
+    text: string;
+    status: 'Próximo' | 'En curso' | 'Hecho';
+    date?: string;
+    photos?: { file: string; alt: string }[];
+  }[],
 };
 
 export type Project = {
@@ -104,6 +120,7 @@ export const journey = {
     {
       id: 'eter',
       title: 'Escuela de Comunicación Eter',
+      tag: 'Desde 2024',
       paragraphs: [
         'En 2024 me animé a formarme mientras trabajaba: inicié la carrera de Periodismo y Producción de Contenidos y este año realicé el curso de Producción Audiovisual, ambos en Eter. Ahí descubrí que lo mío era producir.',
       ],
@@ -120,6 +137,8 @@ export const eterShowcase = {
   label: 'Selección del curso',
   prev: 'Anterior',
   next: 'Siguiente',
+  pause: 'Pausar el pase automático',
+  resume: 'Reanudar el pase automático',
   goTo: 'Ir al trabajo',
   play: 'Reproducir video',
   // Para sumar un trabajo: agregar un objeto más a este array.
@@ -133,7 +152,12 @@ export const eterShowcase = {
 
 export const contact = {
   title: '¿Hablamos?',
+  cta: 'Escribime',
+  whatsapp: 'WhatsApp',
   emailLabel: 'Escribime por email',
+  copy: 'Copiar email',
+  copied: 'Email copiado',
+  copyError: 'No se pudo copiar, seleccioná el email',
   whatsappLabel: 'Escribime por WhatsApp',
 };
 

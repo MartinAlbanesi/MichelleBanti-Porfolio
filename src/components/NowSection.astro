@@ -16,7 +16,7 @@ import SectionHeading from './SectionHeading.astro';
 type Pic = { src: ImageMetadata; alt: string; pos?: string };
 const visuals: Record<string, { bg: string; pics: Pic[] }> = {
   banca: {
-    bg: 'bg-terracotta',
+    bg: 'bg-brown',
     pics: [
       { src: bancaFiesta, alt: 'Michelle trabajando con una notebook en una fiesta al aire libre', pos: '50% 65%' },
       { src: bancaBaile, alt: 'Un grupo bailando en un evento de BANCA', pos: '50% 40%' },
@@ -34,10 +34,13 @@ const visuals: Record<string, { bg: string; pics: Pic[] }> = {
 };
 const projects: Project[] = now.projects;
 const total = projects.length;
-const bgOf = (i: number) => visuals[projects[i % total].id]?.bg ?? 'bg-terracotta';
+const bgOf = (i: number) => visuals[projects[i % total].id]?.bg ?? 'bg-brown';
+// "Ver proyecto": mismo botón en el collage (escritorio) y debajo de él (celular/tablet)
+const linkCls =
+  'link h-11 items-center gap-2 rounded-full bg-wine px-4 font-display text-sm font-bold text-white ring-2 ring-white/60 shadow-[0_10px_24px_-10px_rgb(0_0_0/0.7)] transition-colors hover:bg-cream hover:text-ink hover:ring-cream lg:h-12 lg:px-5 lg:text-base';
 ---
 
-<section id="ahora" aria-labelledby="ahora-titulo" class="now relative overflow-x-clip bg-ink text-paper">
+<section id="ahora" aria-labelledby="ahora-titulo" class="now relative overflow-x-clip bg-ink text-cream">
   <!-- Título fijo encima del carrusel: misma geometría que el contenido de cada diapositiva,
        así queda alineado con el texto y no se mueve al pasar de proyecto -->
   <div class="pointer-events-none absolute left-0 top-0 z-10 grid w-[calc(100%-var(--peek))] grid-cols-[var(--peek)_1fr] pt-[var(--head-pos,var(--head-top))]" data-now-head>
@@ -73,7 +76,7 @@ const bgOf = (i: number) => visuals[projects[i % total].id]?.bg ?? 'bg-terracott
               <h3 class="section-title text-cream [font-size:clamp(2.25rem,6vw,4.25rem)]">{project.title}</h3>
               <div class="mt-4 space-y-3 md:mt-6">
                 {project.paragraphs.map((p, j) => (
-                  <p class:list={[j === 0 ? 'text-lg leading-snug md:text-xl' : 'text-base leading-relaxed text-paper/85 md:text-lg']}>{p}</p>
+                  <p class:list={[j === 0 ? 'text-lg leading-snug md:text-xl' : 'text-base leading-relaxed text-cream md:text-lg']}>{p}</p>
                 ))}
               </div>
             </div>
@@ -86,7 +89,7 @@ const bgOf = (i: number) => visuals[projects[i % total].id]?.bg ?? 'bg-terracott
                 </div>
               )}
               {card && (
-                <div class="pic card absolute left-[2%] top-[4%] aspect-[3/4] w-[46%] overflow-hidden rounded-[1.25rem] ring-4 ring-paper/15 shadow-[0_24px_48px_-16px_rgb(0_0_0/0.75)]">
+                <div class="pic card absolute left-[2%] top-[4%] aspect-[3/4] w-[46%] overflow-hidden rounded-[1.25rem] ring-4 ring-cream/15 shadow-[0_24px_48px_-16px_rgb(0_0_0/0.75)]">
                   <Image src={card.src} alt={card.alt} widths={[300, 480, 700]} sizes="(min-width: 1024px) 18rem, 42vw" quality={72} class="h-full w-full object-cover" style={`object-position:${card.pos ?? '50% 50%'}`} />
                 </div>
               )}
@@ -95,13 +98,13 @@ const bgOf = (i: number) => visuals[projects[i % total].id]?.bg ?? 'bg-terracott
                   <Image src={circle.src} alt={circle.alt} widths={[240, 400]} sizes="(min-width: 1024px) 13rem, 32vw" quality={72} class="h-full w-full object-cover" style={`object-position:${circle.pos ?? '50% 50%'}`} />
                 </div>
               )}
-              <!-- Enlace a Instagram en la esquina libre del collage (abajo a la derecha, debajo de la foto ancha) -->
+              <!-- Escritorio: enlace a Instagram en la esquina libre del collage (abajo a la derecha, debajo de la foto ancha) -->
               {project.url && (
                 <a
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="link absolute bottom-[3%] right-[2%] inline-flex h-11 items-center gap-2 rounded-full bg-butter px-4 font-display text-sm font-bold text-ink shadow-[0_10px_24px_-10px_rgb(0_0_0/0.7)] transition-colors hover:bg-cream lg:h-12 lg:px-5 lg:text-base"
+                  class={`${linkCls} absolute bottom-[3%] right-[2%] hidden lg:inline-flex`}
                   aria-label={`${now.visit}: ${project.title}, en Instagram (se abre en una pestaña nueva)`}
                 >
                   <svg viewBox="0 0 24 24" class="ig size-5 lg:size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" set:html={icons.instagram} />
@@ -109,6 +112,20 @@ const bgOf = (i: number) => visuals[projects[i % total].id]?.bg ?? 'bg-terracott
                 </a>
               )}
             </div>
+
+            <!-- Celular y tablet: el enlace va debajo del collage, así no se superpone con las fotos -->
+            {project.url && (
+              <a
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class={`${linkCls} inline-flex justify-self-end lg:hidden`}
+                aria-label={`${now.visit}: ${project.title}, en Instagram (se abre en una pestaña nueva)`}
+              >
+                <svg viewBox="0 0 24 24" class="ig size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" set:html={icons.instagram} />
+                {now.visit}
+              </a>
+            )}
           </div>
         </article>
       );
@@ -210,8 +227,8 @@ const bgOf = (i: number) => visuals[projects[i % total].id]?.bg ?? 'bg-terracott
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 9999px;
-    color: var(--color-paper);
-    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-paper) 45%, transparent);
+    color: var(--color-cream);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-cream) 45%, transparent);
     transition:
       background-color 0.2s,
       color 0.2s;
@@ -220,7 +237,7 @@ const bgOf = (i: number) => visuals[projects[i % total].id]?.bg ?? 'bg-terracott
     display: none;
   }
   .peek-btn:hover {
-    background: var(--color-butter);
+    background: var(--color-gravel);
     color: var(--color-ink);
     box-shadow: none;
   }

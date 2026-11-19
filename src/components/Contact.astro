@@ -2,51 +2,129 @@
 import { contact } from '../data/content';
 import { CONTACT_EMAIL, WHATSAPP_URL, WHATSAPP_DISPLAY } from '../data/site';
 import { icons } from '../data/icons';
-import LottiePill from './LottiePill.astro';
 
-const pill = 'font-display font-extrabold uppercase tracking-wider h-14 w-full px-7 text-sm focus-visible:outline-paper sm:w-auto sm:text-base';
+// Si el email no entra en una línea, se corta antes del @ y no en mitad de una palabra
+const [user, domain] = CONTACT_EMAIL.split('@');
 ---
 
-<section id="contacto" class="bg-terracotta-dark text-paper">
-  <div class="mx-auto max-w-7xl px-4 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] py-10 md:py-14">
-    <!-- Título + ícono animado (Lottie) a su derecha. Sin JS o si falla la carga, solo queda el título -->
-    <div class="flex items-center gap-2 sm:gap-4">
+<!-- Cierre: título con el sobre animado (IconScout) y los dos datos de contacto con el mismo peso.
+     Fondo crema: texto ink 14.4:1; el círculo gravel del sobre resalta sobre el crema. -->
+<section id="contacto" class="on-light bg-cream text-ink">
+  <div class="mx-auto max-w-7xl px-4 lg:px-8 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] py-14 md:py-20">
+    <div class="flex items-center gap-3 sm:gap-4">
       <h2 class="section-title">{contact.title}</h2>
-      <div data-letter aria-hidden="true" class="skeleton size-20 shrink-0 rounded-full sm:size-28 lg:size-32"></div>
+      <div data-letter aria-hidden="true" class="skeleton size-16 shrink-0 rounded-full sm:size-24 lg:size-28"></div>
     </div>
-    <!-- Mismos botones animados que el hero, con ícono -->
-    <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-      <LottiePill href={`mailto:${CONTACT_EMAIL}`} icon={icons.mail} class={pill} animated={false}>
-        {contact.emailLabel}
-      </LottiePill>
-      <LottiePill
-        href={WHATSAPP_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        icon={icons.whatsapp}
-        class={pill}
-        animated={false}
-      >
-        <span>
-          {contact.whatsappLabel}
-          <span class="hidden sm:inline"> · {WHATSAPP_DISPLAY}</span>
-        </span>
-      </LottiePill>
-    </div>
+
+    <ul class="mt-10 grid gap-8 border-t-2 border-ink/25 pt-8 md:mt-12 md:grid-cols-2 md:gap-10 md:pt-10">
+      <li>
+        <p class="label">
+          <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" set:html={icons.mail} />
+          Email
+        </p>
+        <a href={`mailto:${CONTACT_EMAIL}`} class="text-link" aria-label={`${contact.emailLabel}: ${CONTACT_EMAIL}`}>
+          {user}<wbr />@{domain}
+        </a>
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          <button type="button" data-copy={CONTACT_EMAIL} hidden class="btn btn-ink min-h-11 px-4 py-2 text-sm">
+            {contact.copy}
+          </button>
+          <span data-copy-status class="font-display text-sm font-semibold" aria-live="polite"></span>
+        </div>
+      </li>
+      <li>
+        <p class="label">
+          <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" set:html={icons.whatsapp} />
+          {contact.whatsapp}
+        </p>
+        <a
+          href={WHATSAPP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-link"
+          aria-label={`${contact.whatsappLabel}: ${WHATSAPP_DISPLAY} (se abre en una pestaña nueva)`}
+        >
+          {WHATSAPP_DISPLAY}
+        </a>
+      </li>
+    </ul>
   </div>
 </section>
 
+<style>
+  .label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  /* El dato es lo protagonista: grande, subrayado; al pasar el mouse el subrayado se completa */
+  .text-link {
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 5.6vw, 2.25rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+    text-decoration-color: color-mix(in srgb, var(--color-ink) 45%, transparent);
+    transition: text-decoration-color 0.2s;
+  }
+  .text-link:hover {
+    text-decoration-color: currentColor;
+  }
+  @media (min-width: 768px) {
+    .text-link {
+      font-size: clamp(1.375rem, 2.2vw, 2.25rem);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .text-link {
+      transition: none;
+    }
+  }
+</style>
+
 <script>
+  import { contact } from '../data/content';
   import { lazyLottie } from '../lib/lottie';
+
+  // Sobre animado: se reproduce una vez al cargar (4,8 s) y otra vez al pasar el mouse.
+  // Con "reducir movimiento" queda quieto en un cuadro donde el sobre ya se ve.
   const el = document.querySelector<HTMLElement>('[data-letter]');
-  // Con "reducir movimiento" queda quieto en un cuadro donde el sobre ya se ve
   if (el)
     lazyLottie(
       el,
       () => import('../assets/valentine-letter.json'),
-      {},
+      // Cuadro 120 a 25 fps = 4,8 s: ahí el sobre ya está a la vista y se queda quieto
+      { loop: false, autoplay: false },
       (anim, reduce) => {
-        if (reduce) anim.goToAndStop(120, true);
+        if (reduce) return anim.goToAndStop(120, true);
+        const play = () => anim.playSegments([0, 120], true);
+        play();
+        el.closest('section')?.addEventListener('pointerenter', play);
       },
     );
+
+  // Copiar email: solo con JS y portapapeles disponible; si no, el botón queda oculto y el email se lee en pantalla
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    const status = btn.parentElement?.querySelector<HTMLElement>('[data-copy-status]');
+    if (!navigator.clipboard) return;
+    btn.hidden = false;
+    let timer = 0;
+    btn.addEventListener('click', async () => {
+      clearTimeout(timer);
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? '');
+        if (status) status.textContent = contact.copied;
+      } catch {
+        if (status) status.textContent = contact.copyError;
+      }
+      timer = window.setTimeout(() => status && (status.textContent = ''), 3000);
+    });
+  });
 </script>

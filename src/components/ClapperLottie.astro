@@ -15,6 +15,7 @@ const { class: className } = Astro.props;
 <script>
   import { lazyLottie } from '../lib/lottie';
   const el = document.querySelector<HTMLElement>('[data-clapper]');
+  // En bucle desde que carga la página (decisión de la dueña).
   // Con "reducir movimiento" queda quieta en el último fotograma
   if (el)
     lazyLottie(

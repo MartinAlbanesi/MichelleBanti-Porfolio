@@ -28,8 +28,8 @@ Static site, zero cost, hosted on Cloudflare Pages (25 MiB per file limit). No b
 - One long page with a top index; alternating media + text blocks, one media per block, never several side by side.
 - ETER is shown as a curated slider (videos, audio, images) plus a link to the full work (link pending).
 - Zero-cost hosting; mobile first; 3D only as a subtle detail (clapperboard), planned for a later milestone.
-- Palette taste: earthy tones, red, black and beige. No pink, violet, light blue or pastel colors.
-- Undecided: domain, the ETER full-work link, the TENT clip, BANCA and theatre media.
+- Palette: dark theme in deep burgundies (Charred Brown, Saving Light) with Tostado, Red Gravel, Rosa arena and Sweet Cream (see DESIGN.md). No green, pink, violet, light blue or pastel colors.
+- Undecided: domain, the ETER full-work link, the TENT clip, photos for the "Hacia dónde voy" steps (mostly landscape).
 
 ## Brand Commitments
 
@@ -37,7 +37,7 @@ Name: Michelle Banti. Voice: close, personal and creative, first person. Persona
 
 ## Evidence on Hand
 
-Photos (`src/assets/hero-selfie.jpeg`, `sobre-mi-selfie.jpeg`, two 2023 photos with a camera, project not confirmed), three ETER videos (`Streaming producción`, `streaming por.si.o.por.no`, `Adolescencia Cobertura`, pending YouTube upload), a moodboard PDF (project not confirmed). Absent, and not to be invented: the TENT clip, BANCA material, theatre photos, MercadoLibre photos, metrics, testimonials and client names.
+Photos (`src/assets/hero-selfie.jpeg`, `sobre-mi-selfie.jpeg`, two 2023 photos with a camera, project not confirmed), three ETER videos (`Streaming producción`, `streaming por.si.o.por.no`, `Adolescencia Cobertura`, pending YouTube upload), a moodboard PDF (project not confirmed). Now on the site: BANCA, theatre, MercadoLibre, ETER and "Quién soy" photos. Absent, and not to be invented: the TENT clip, metrics, testimonials and client names.
 
 ## Product Principles
 

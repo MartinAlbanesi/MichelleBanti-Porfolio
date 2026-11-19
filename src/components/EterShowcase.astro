@@ -55,7 +55,7 @@ const total = s.items.length;
                 class="skeleton h-full w-full object-cover"
               />
               <span class="absolute inset-0 flex items-center justify-center pb-(--bar-h)" aria-hidden="true">
-                <span class="flex size-10 items-center justify-center rounded-full bg-rust/75 text-paper backdrop-blur-[2px] sm:size-12 lg:size-14">
+                <span class="flex size-10 items-center justify-center rounded-full bg-wine text-cream sm:size-12 lg:size-14">
                   <svg viewBox="0 0 24 24" class="size-5 sm:size-6 lg:size-7" fill="currentColor">
                     <path d="M8 5v14l11-7z" />
                   </svg>
@@ -68,7 +68,7 @@ const total = s.items.length;
                 class="video-loader absolute inset-0 flex items-center justify-center"
                 aria-hidden="true"
               >
-                <span class="spinner size-12 rounded-full border-4 border-paper/25 border-t-paper"></span>
+                <span class="spinner size-12 rounded-full border-4 border-cream/25 border-t-cream"></span>
               </span>
             </button>
           </div>
@@ -112,12 +112,31 @@ const total = s.items.length;
                 type="button"
                 data-dot
                 aria-label={`${s.goTo} ${i + 1}: ${it.title}`}
-                class="group/dot inline-flex min-h-10 min-w-8 items-center justify-center"
+                class="group/dot inline-flex min-h-10 min-w-7 items-center justify-center px-1"
               >
-                <span class="h-3 w-3 rounded-full border-2 border-cream transition-colors group-aria-[current=true]/dot:bg-cream" />
+                <!-- El actual se estira en una píldora que se llena durante la espera hasta el próximo video (data-fill) -->
+                <span class="relative h-3 w-3 overflow-hidden rounded-full border-2 border-cream motion-safe:transition-[width] motion-safe:duration-300 group-aria-[current=true]/dot:w-8">
+                  <span data-fill class="absolute inset-0 origin-left scale-x-0 bg-cream group-aria-[current=true]/dot:scale-x-100" />
+                </span>
               </button>
             ))}
           </div>
+          <!-- Pausa del pase automático (oculto con movimiento reducido: ahí no hay pase automático) -->
+          <button
+            type="button"
+            data-pause
+            data-label-pause={s.pause}
+            data-label-resume={s.resume}
+            aria-label={s.pause}
+            class={`${arrow} group/pause`}
+          >
+            <svg viewBox="0 0 24 24" class="h-5 w-5 group-data-[paused]/pause:hidden" fill="currentColor" aria-hidden="true">
+              <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />
+            </svg>
+            <svg viewBox="0 0 24 24" class="hidden h-5 w-5 group-data-[paused]/pause:block" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </button>
           <button type="button" data-next aria-label={s.next} class={arrow}>
             <svg
               viewBox="0 0 24 24"
@@ -142,7 +161,7 @@ const total = s.items.length;
         href={ETER_PORTFOLIO_URL}
         target="_blank"
         rel="noopener noreferrer"
-        class={`${btn} border-2 border-terracotta-dark text-terracotta-dark transition-colors hover:bg-terracotta-dark hover:text-paper`}
+        class={`${btn} border-2 border-cream text-cream transition-colors hover:bg-cream hover:text-ink`}
       >
         {s.cta}
       </a>
@@ -231,6 +250,13 @@ const total = s.items.length;
     let lockUntil = 0; // ignora al observer mientras corre un desplazamiento programático
     let inView = false;
     let hovering = false;
+    let paused = false;
+    const pauseBtn = root.querySelector<HTMLButtonElement>('[data-pause]')!;
+    const syncPause = () => {
+      pauseBtn.hidden = n < 2 || reduce.matches;
+      pauseBtn.toggleAttribute('data-paused', paused);
+      pauseBtn.setAttribute('aria-label', (paused ? pauseBtn.dataset.labelResume : pauseBtn.dataset.labelPause) ?? '');
+    };
 
     // Volver a la fachada: corta el iframe para que no suene audio en un slide oculto
     const resetFacade = (slide: HTMLElement) => {
@@ -242,11 +268,17 @@ const total = s.items.length;
     // Ciclo automático: se frena con un video en reproducción, mouse encima, fuera de pantalla,
     // pestaña oculta o movimiento reducido. Cada cambio reinicia la cuenta.
     // ponytail: no hay API de YouTube, así que un video pausado/terminado frena el ciclo hasta navegar a mano.
+    // Progreso en el círculo actual: se llena en AUTO_MS; si el ciclo se frena, queda lleno (quieto en ese video)
+    let progress: Animation | undefined;
     const schedule = () => {
       clearTimeout(timer);
+      progress?.cancel();
       const playing = !!slides[cur]?.querySelector('iframe');
-      if (n < 2 || reduce.matches || document.hidden || !inView || hovering || playing) return;
+      if (n < 2 || reduce.matches || document.hidden || !inView || hovering || playing || paused) return;
       timer = window.setTimeout(() => go(cur + 1, true), AUTO_MS);
+      progress = dots[cur]
+        ?.querySelector('[data-fill]')
+        ?.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: AUTO_MS, easing: 'linear' });
     };
 
     const set = (i: number) => {
@@ -302,7 +334,13 @@ const total = s.items.length;
       schedule();
     });
     document.addEventListener('visibilitychange', schedule);
-    reduce.addEventListener('change', schedule);
+    reduce.addEventListener('change', () => (syncPause(), schedule()));
+    pauseBtn.addEventListener('click', () => {
+      paused = !paused;
+      syncPause();
+      schedule();
+    });
+    syncPause();
 
     root.querySelector('[data-prev]')!.addEventListener('click', () => go(cur - 1));
     root.querySelector('[data-next]')!.addEventListener('click', () => go(cur + 1));

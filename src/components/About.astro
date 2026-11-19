@@ -15,19 +15,20 @@ const srcs = [foto1, foto2, foto3, foto4, foto5];
 const photos = srcs.map((src, i) => ({ src, alt: about.who.photoAlts[i] }));
 ---
 
-<section id="quien-soy" class="overflow-x-clip bg-cream">
+<!-- Rosa arena: párrafos ink (11.4:1); título y resaltados wine (9.8:1) -->
+<section id="quien-soy" class="on-light overflow-x-clip bg-sand text-ink [&_h2]:text-wine">
   <div class="mx-auto grid min-h-svh max-w-7xl items-center gap-8 px-4 py-10 md:grid-cols-2 md:gap-14 lg:px-8 xl:gap-24">
     <div>
       <SectionHeading title={about.who.title} />
       <div class="mt-5 space-y-4">
         {about.who.paragraphs.map((p, i) => (
-          <p class:list={['text-xl md:text-2xl', i === 0 ? 'leading-snug' : 'leading-relaxed text-ink/90']}>
+          <p class:list={['text-xl md:text-2xl', i === 0 ? 'leading-snug' : 'leading-relaxed']}>
             {/* **texto** = negrita, {grad} = emoji de graduación. Espacio duro antes de la última palabra: nunca queda sola en un renglón */}
             {p.replace(/ (\S+)$/, ' $1').split(/(\*\*.+?\*\*|\{grad\})/).map((part) =>
               part === '{grad}' ? (
                 <GradEmoji />
               ) : part.startsWith('**') ? (
-                <strong class="font-bold text-ink">{part.slice(2, -2)}</strong>
+                <strong class="font-extrabold text-wine">{part.slice(2, -2)}</strong>
               ) : (
                 part
               ),
