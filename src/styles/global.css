@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 /* Bricolage Grotesque variable (peso 200-800), autoalojada: ~41 KB el subset latino, sin servicios externos */
 @import '@fontsource-variable/bricolage-grotesque';
+/* Kalam 700: manuscrita de imprenta para celulares y Mac, que no traen Segoe Print (solo se descarga si hace falta) */
+@import '@fontsource/kalam/latin-700.css';
 
 /* Celular acostado: ancho de teléfono, poca altura */
 @custom-variant land (@media (orientation: landscape) and (max-height: 540px) and (max-width: 1023.98px));
@@ -19,8 +21,9 @@
 
   --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
   --font-body: 'Bricolage Grotesque Variable', system-ui, sans-serif;
-  /* Manuscrita del sistema: solo el saludo del hero */
-  --font-hand: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive;
+  /* Manuscrita: saludo y botones del hero. Segoe Print en Windows; en el resto, Kalam autoalojada.
+     Sin "cursive" genérica: en celulares cae en una letra de caligrafía con trazos unidos */
+  --font-hand: 'Segoe Print', 'Kalam', 'Comic Sans MS', sans-serif;
 }
 
 @layer base {

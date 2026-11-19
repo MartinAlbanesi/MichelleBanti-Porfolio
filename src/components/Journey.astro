@@ -168,9 +168,21 @@ const eterPhotos = [
       if (!img || (!small.matches && !b.classList.contains('pic'))) return;
       from = img;
       big.alt = img.alt;
-      big.sizes = '100vw';
-      big.srcset = img.srcset;
+      // Primero la miniatura que ya está en caché (aparece al instante, nunca la foto anterior);
+      // cuando la versión grande termina de bajar, se cambia sin parpadeo
+      big.removeAttribute('srcset');
       big.src = img.currentSrc || img.src;
+      const hi = new Image();
+      hi.sizes = '100vw';
+      hi.srcset = img.srcset;
+      hi.decode().then(
+        () => {
+          if (from !== img || !dlg.open) return;
+          big.sizes = '100vw';
+          big.srcset = img.srcset;
+        },
+        () => {},
+      );
       dlg.showModal();
       if (reduce.matches) return;
       // Zoom in: crece desde la miniatura; el fondo oscuro aparece con un fundido
