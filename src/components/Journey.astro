@@ -5,10 +5,23 @@ import experience from '../assets/MELI/2-meli.jpeg';
 import eterStream from '../assets/ETER/1-eter.jpeg';
 import eterSelfie from '../assets/ETER/2-eter.jpeg';
 import eterEstudio from '../assets/ETER/3-eter.jpeg';
+import resu1 from '../assets/hacia-donde-voy/seminario/1-RESU.jpg';
+import resu2 from '../assets/hacia-donde-voy/seminario/2-RESU.jpg';
+import resu3 from '../assets/hacia-donde-voy/seminario/3-RESU.jpg';
+import resu4 from '../assets/hacia-donde-voy/seminario/4-RESU.jpg';
 import { journey } from '../data/content';
 import EterShowcase from './EterShowcase.astro';
 
-const [ml, eter] = journey.projects;
+const [ml, eter, seminar] = journey.projects;
+const seminarPhotos = [
+  { src: resu1, pos: '50% 50%', alt: 'Michelle sonríe con la credencial del seminario en la mano' },
+  { src: resu2, pos: '50% 50%', alt: 'Michelle, de espaldas, filma con el celular en un estabilizador dentro del estudio de Resumido' },
+  { src: resu3, pos: '50% 50%', alt: 'Estudio de Resumido durante la grabación de un programa en vivo' },
+  { src: resu4, pos: '50% 50%', alt: 'Michelle muestra un recuerdo del seminario, con la credencial colgada' },
+];
+// La 3 (el estudio) va apaisada junto a la card; las demás, debajo
+const [seminarWide] = seminarPhotos.splice(2, 1);
+const seminarRest = seminarPhotos;
 
 const meliPhotos = [
   {
@@ -85,9 +98,43 @@ const eterPhotos = [
       />
     </button>
   ))}
+
+  <!-- Seminario: fila 1, card oscura + la foto del estudio apaisada (más ancha); fila 2, las otras tres en 4:5,
+       igual que las de Eter. En celular: card, foto apaisada y las tres en fila -->
+  <article id={seminar.id} class="tile tile-dark col-span-6 lg:order-4 lg:col-span-5">
+    <h3 class="title">{seminar.title}</h3>
+    <p class="rule">{seminar.tag}</p>
+    <div class="body">
+      {seminar.paragraphs.map((p) => (
+        <p>{p}</p>
+      ))}
+    </div>
+  </article>
+  <button type="button" class="pic wide-pic zoomable skeleton col-span-6 lg:order-5 lg:col-span-7" aria-label="Ampliar foto">
+    <Image
+      src={seminarWide.src}
+      alt={seminarWide.alt}
+      widths={[480, 720, 1080, 1440]}
+      quality={72}
+      sizes="(min-width: 1024px) 55vw, 95vw"
+      style={`object-position:${seminarWide.pos}`}
+    />
+  </button>
+  {seminarRest.map((p) => (
+    <button type="button" class="pic zoomable skeleton col-span-2 lg:order-6 lg:col-span-4" aria-label="Ampliar foto">
+      <Image
+        src={p.src}
+        alt={p.alt}
+        widths={[320, 480, 640, 1080]}
+        quality={72}
+        sizes="30vw"
+        style={`object-position:${p.pos}`}
+      />
+    </button>
+  ))}
 </div>
 
-<!-- Vista ampliada (solo celular/tablet): toque sobre una foto para abrirla, toque en cualquier lado para cerrar -->
+<!-- Vista ampliada: fotos de Mi recorrido en todas las pantallas, el resto solo en celular/tablet. Toque/clic para abrir, en cualquier lado (o Esc) para cerrar -->
 <dialog id="zoom" class="zoom" aria-label="Foto ampliada"></dialog>
 
 <script>
@@ -117,7 +164,8 @@ const eterPhotos = [
   document.querySelectorAll<HTMLElement>('.zoomable').forEach((b) =>
     b.addEventListener('click', () => {
       const img = b.querySelector('img');
-      if (!small.matches || !img) return;
+      // Las fotos de Mi recorrido (.pic) se amplían en todas las pantallas; el resto solo en celular/tablet
+      if (!img || (!small.matches && !b.classList.contains('pic'))) return;
       from = img;
       big.alt = img.alt;
       big.sizes = '100vw';
@@ -130,6 +178,25 @@ const eterPhotos = [
       big.animate({ transform: [toThumb(), 'none'] }, opts(350, 'cubic-bezier(0.2, 0.8, 0.2, 1)'));
     }),
   );
+
+  // Celular/tablet: cada foto ampliable hace un "latido" leve la primera vez que entra en pantalla,
+  // para que se note que reacciona al toque. En escalonado si entran varias juntas. Una sola vez por foto.
+  if (small.matches && !reduce.matches) {
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries
+          .filter((e) => e.isIntersecting)
+          .forEach((e, i) => {
+            io.unobserve(e.target);
+            e.target.animate(
+              { transform: ['none', 'scale(1.04)', 'scale(0.99)', 'none'] },
+              { duration: 900, delay: 250 + i * 140, easing: 'ease-in-out' },
+            );
+          }),
+      { threshold: 0.7 },
+    );
+    document.querySelectorAll('.zoomable').forEach((b) => io.observe(b));
+  }
 
   let closing = false;
   const hide = () => {
@@ -158,17 +225,52 @@ const eterPhotos = [
     overflow: hidden;
   }
   .tile {
+    position: relative;
+    isolation: isolate;
     padding: 1.25rem;
   }
+  /* Vidrio: fondo translúcido con blur, borde fino de luz, brillo arriba a la izquierda y sombra que la despega.
+     La card clara queda casi opaca para que el texto ink siga pasando 4.5:1 */
+  .tile-dark,
+  .tile-light {
+    backdrop-filter: blur(16px) saturate(1.3);
+    border: 1px solid var(--edge);
+    box-shadow:
+      inset 0 1px 0 var(--edge),
+      0 28px 50px -24px rgb(0 0 0 / 0.65);
+  }
+  .tile-dark::before,
+  .tile-light::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(120% 70% at 0% 0%, var(--sheen), transparent 60%);
+  }
   .tile-dark {
-    background: var(--color-ink);
+    background: linear-gradient(
+      150deg,
+      color-mix(in srgb, var(--color-ink) 80%, transparent),
+      color-mix(in srgb, var(--color-ink) 55%, transparent)
+    );
     color: var(--color-cream);
     --accent: var(--color-gravel);
+    --edge: rgb(255 255 255 / 0.14);
+    --sheen: rgb(255 255 255 / 0.09);
+    --title-shadow: 0 2px 16px rgb(0 0 0 / 0.45);
   }
   .tile-light {
-    background: var(--color-gravel);
+    background: linear-gradient(
+      150deg,
+      color-mix(in srgb, var(--color-gravel) 96%, transparent),
+      color-mix(in srgb, var(--color-gravel) 88%, transparent)
+    );
     color: var(--color-ink);
     --accent: var(--color-ink);
+    --edge: rgb(255 255 255 / 0.4);
+    --sheen: rgb(255 255 255 / 0.28);
+    --title-shadow: 0 1px 0 rgb(255 255 255 / 0.3);
   }
   /* Video: el contenido llega hasta el borde */
   .tile-video {
@@ -183,6 +285,10 @@ const eterPhotos = [
     padding: 0;
     cursor: zoom-in;
   }
+  /* Foto apaisada del seminario: 16:9; en escritorio la card de al lado se estira a su alto */
+  .wide-pic {
+    aspect-ratio: 16 / 9;
+  }
   .pic :global(img) {
     position: absolute;
     inset: 0;
@@ -190,9 +296,71 @@ const eterPhotos = [
     height: 100%;
     object-fit: cover;
   }
-  @media (min-width: 1024px) {
-    .pic {
-      cursor: default;
+  /* Hover: la foto se despega de la pantalla (sube, crece y gana sombra) y aparece un ícono de ampliar */
+  .pic {
+    transition:
+      transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .pic :global(img) {
+    transition: scale 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .pic::after {
+    content: '';
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    background:
+      center / 1.1rem no-repeat
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23400007' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E"),
+      var(--color-cream);
+    opacity: 0;
+    scale: 0.6;
+    transition:
+      opacity 0.3s ease,
+      scale 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @media (hover: hover) {
+    .pic:hover {
+      transform: translateY(-8px) scale(1.03) rotate(-0.6deg);
+      box-shadow: 0 22px 40px -14px rgb(0 0 0 / 0.6);
+    }
+    .pic:hover :global(img) {
+      scale: 1.05;
+    }
+    .pic:hover::after {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+  /* Al tocar (celular) o hacer clic, la foto se hunde apenas: respuesta inmediata al dedo.
+     Global por si otra sección suma fotos .zoomable */
+  :global(.zoomable) {
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  :global(.zoomable:active) {
+    transform: scale(0.97);
+    transition-duration: 0.12s;
+  }
+  .pic:focus-visible::after {
+    opacity: 1;
+    scale: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pic,
+    .pic :global(img),
+    .pic::after {
+      transition: opacity 0.2s ease;
+    }
+    .pic:hover {
+      transform: none;
+    }
+    .pic:hover :global(img) {
+      scale: 1;
     }
   }
   .zoom {
@@ -208,11 +376,11 @@ const eterPhotos = [
     background: rgb(0 0 0 / 0.9);
     cursor: zoom-out;
   }
-  .zoom[open] {
-    display: grid;
-    place-items: center;
-  }
-  .zoom img {
+  /* :global porque el <img> se crea por JS y no lleva el atributo de scope de Astro.
+     Absoluta y no en grid: en grid la fila toma el alto natural de la foto y la desborda */
+  .zoom :global(img) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -224,6 +392,7 @@ const eterPhotos = [
     line-height: 1.05;
     letter-spacing: -0.025em;
     overflow-wrap: anywhere;
+    text-shadow: var(--title-shadow);
   }
   /* Línea de marca con el período a su derecha */
   .rule {

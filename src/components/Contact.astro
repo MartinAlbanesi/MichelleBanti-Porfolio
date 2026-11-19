@@ -2,9 +2,6 @@
 import { contact } from '../data/content';
 import { CONTACT_EMAIL, WHATSAPP_URL, WHATSAPP_DISPLAY } from '../data/site';
 import { icons } from '../data/icons';
-
-// Si el email no entra en una línea, se corta antes del @ y no en mitad de una palabra
-const [user, domain] = CONTACT_EMAIL.split('@');
 ---
 
 <!-- Cierre: título con el sobre animado (IconScout) y los dos datos de contacto con el mismo peso.
@@ -22,15 +19,16 @@ const [user, domain] = CONTACT_EMAIL.split('@');
           <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" set:html={icons.mail} />
           Email
         </p>
-        <a href={`mailto:${CONTACT_EMAIL}`} class="text-link" aria-label={`${contact.emailLabel}: ${CONTACT_EMAIL}`}>
-          {user}<wbr />@{domain}
-        </a>
-        <div class="mt-4 flex flex-wrap items-center gap-3">
-          <button type="button" data-copy={CONTACT_EMAIL} hidden class="btn btn-ink min-h-11 px-4 py-2 text-sm">
-            {contact.copy}
+        <div class="flex items-center gap-1">
+          <a href={`mailto:${CONTACT_EMAIL}`} class="text-link" aria-label={`${contact.emailLabel}: ${CONTACT_EMAIL}`}>
+            {CONTACT_EMAIL}
+          </a>
+          <!-- Copiar: solo el ícono, bordó translúcido; se oculta si no hay portapapeles -->
+          <button type="button" data-copy={CONTACT_EMAIL} hidden class="copy" aria-label={contact.copy} title={contact.copy}>
+            <svg viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" /></svg>
           </button>
-          <span data-copy-status class="font-display text-sm font-semibold" aria-live="polite"></span>
         </div>
+        <span data-copy-status class="mt-2 block min-h-5 font-display text-sm font-semibold" aria-live="polite"></span>
       </li>
       <li>
         <p class="label">
@@ -64,7 +62,10 @@ const [user, domain] = CONTACT_EMAIL.split('@');
   /* El dato es lo protagonista: grande, subrayado; al pasar el mouse el subrayado se completa */
   .text-link {
     font-family: var(--font-display);
-    font-size: clamp(1.375rem, 5.6vw, 2.25rem);
+    /* Siempre en una línea: el tamaño sigue al ancho de su columna (cqi) para que el email, de ~16.4em,
+       entre junto al ícono de copiar (3rem) */
+    white-space: nowrap;
+    font-size: clamp(0.875rem, calc((100cqi - 3rem) / 16.8), 2.25rem);
     font-weight: 600;
     line-height: 1.2;
     letter-spacing: -0.015em;
@@ -72,15 +73,35 @@ const [user, domain] = CONTACT_EMAIL.split('@');
     text-decoration-thickness: 2px;
     text-underline-offset: 0.2em;
     text-decoration-color: color-mix(in srgb, var(--color-ink) 45%, transparent);
-    transition: text-decoration-color 0.2s;
+    transition:
+      color 0.2s,
+      text-decoration-color 0.2s;
   }
-  .text-link:hover {
+  /* Al pasar el mouse cambia a tostado (7.7:1 sobre crema) y el subrayado se completa */
+  .text-link:hover,
+  .text-link:focus-visible {
+    color: var(--color-brown);
     text-decoration-color: currentColor;
   }
-  @media (min-width: 768px) {
-    .text-link {
-      font-size: clamp(1.375rem, 2.2vw, 2.25rem);
-    }
+  .copy {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    /* 55%: lo justo para que el ícono siga pasando 3:1 sobre crema */
+    color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+    transition: color 0.2s;
+  }
+  .copy[hidden] {
+    display: none;
+  }
+  .copy:hover,
+  .copy:focus-visible {
+    color: var(--color-ink);
+  }
+  li {
+    container-type: inline-size;
   }
   @media (prefers-reduced-motion: reduce) {
     .text-link {
@@ -112,7 +133,7 @@ const [user, domain] = CONTACT_EMAIL.split('@');
 
   // Copiar email: solo con JS y portapapeles disponible; si no, el botón queda oculto y el email se lee en pantalla
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
-    const status = btn.parentElement?.querySelector<HTMLElement>('[data-copy-status]');
+    const status = btn.closest('li')?.querySelector<HTMLElement>('[data-copy-status]');
     if (!navigator.clipboard) return;
     btn.hidden = false;
     let timer = 0;

@@ -16,7 +16,7 @@ import SectionHeading from './SectionHeading.astro';
 type Pic = { src: ImageMetadata; alt: string; pos?: string };
 const visuals: Record<string, { bg: string; pics: Pic[] }> = {
   banca: {
-    bg: 'bg-brown',
+    bg: 'bg-black',
     pics: [
       { src: bancaFiesta, alt: 'Michelle trabajando con una notebook en una fiesta al aire libre', pos: '50% 65%' },
       { src: bancaBaile, alt: 'Un grupo bailando en un evento de BANCA', pos: '50% 40%' },
@@ -67,6 +67,10 @@ const linkCls =
           aria-label={`${i + 1} de ${total}: ${project.title}`}
           class:list={['slide grid shrink-0 snap-start grid-cols-[var(--peek)_1fr]', bgOf(i)]}
         >
+          <!-- Fondo: el logo del círculo, ampliado y difuminado; el color de bg queda como respaldo mientras carga -->
+          {circle && (
+            <Image src={circle.src} alt="" aria-hidden="true" widths={[320]} sizes="320px" quality={50} class="slide-bg" />
+          )}
           <!-- Franja izquierda (escritorio): lugar de la flecha "anterior"; es lo que se asoma desde la diapositiva previa -->
           <div aria-hidden="true"></div>
 
@@ -165,7 +169,29 @@ const linkCls =
   /* Cada proyecto ocupa el ancho menos la franja del siguiente. El alto lo da el contenido, que está atado a svh
      (título + collage de máx. 62svh), así nunca pasa la pantalla y el título del proyecto queda pegado al de la sección */
   .slide {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     width: calc(100% - var(--peek));
+  }
+  /* Logo difuminado detrás de todo; se agranda para que el blur no deje bordes claros */
+  .slide :global(.slide-bg) {
+    position: absolute;
+    inset: -15%;
+    z-index: -1;
+    width: 130%;
+    height: 130%;
+    max-width: none;
+    object-fit: cover;
+    filter: blur(56px) saturate(1.15);
+  }
+  /* Velo oscuro encima del fondo, más fuerte del lado del texto, para que se lea */
+  .slide::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(0 0 0 / 0.6), rgb(0 0 0 / 0.3));
   }
   /* El último no deja asomar nada: ocupa todo el ancho y reserva la franja como aire, con la misma geometría */
   .slide:last-child {
@@ -299,6 +325,25 @@ const linkCls =
         pics.forEach((p) => p.removeAttribute('data-zoom'));
         if (hit && !wasOn) hit.setAttribute('data-zoom', '');
       });
+    }
+    // Celular/tablet: la primera vez que la sección entra en pantalla, los proyectos rebotan hacia la izquierda
+    // y dejan asomar el siguiente, para que se entienda que se puede deslizar. Una sola vez.
+    if (slides.length > 1 && matchMedia('(max-width: 1023px)').matches && !reduce.matches) {
+      const io = new IntersectionObserver(
+        ([e]) => {
+          if (!e.isIntersecting) return;
+          io.disconnect();
+          if (track.scrollLeft > 0) return;
+          slides.forEach((s) =>
+            s.animate(
+              { transform: ['none', 'translateX(-56px)', 'none', 'translateX(-18px)', 'none'] },
+              { duration: 1100, delay: 300, easing: 'ease-in-out' },
+            ),
+          );
+        },
+        { threshold: 0.4 },
+      );
+      io.observe(track);
     }
     let raf = 0;
     track.addEventListener('scroll', () => (raf ||= requestAnimationFrame(() => ((raf = 0), sync()))), { passive: true });

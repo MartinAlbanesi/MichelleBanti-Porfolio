@@ -41,35 +41,6 @@ export const about = {
 export const goal = {
   title: 'Hacia dónde voy',
   text: 'No tengo todas las respuestas sobre lo que se viene, pero sí muchas ganas de seguir aprendiendo y descubriendo nuevas oportunidades.',
-  // Cada paso: estado ('Próximo', 'En curso' o 'Hecho') y fecha opcional. Al terminar uno, cambiar su estado a 'Hecho'.
-  // Fotos (verticales): guardarlas en src/assets/hacia-donde-voy/ y listarlas en "photos" con la ruta desde esa carpeta
-  // y una descripción breve (alt). Sin fotos, el paso se muestra solo con el texto.
-  items: [
-    // Oculto hasta tener fotos y contenido:
-    // {
-    //   title: 'Curso de dirección y técnica',
-    //   text: 'Dictado por el Pulpo Díaz en la Academia de Resumido.',
-    //   status: 'En curso',
-    // },
-    {
-      title: 'Seminario de producción de stream y podcast',
-      text: 'Seminario intensivo presencial, el 14 de noviembre.',
-      status: 'Hecho',
-      date: '14 Nov',
-      photos: [
-        { file: 'seminario/1-RESU.jpg', alt: 'Michelle sonríe con la credencial del seminario en la mano' },
-        { file: 'seminario/2-RESU.jpg', alt: 'Michelle, de espaldas, filma con el celular en un estabilizador dentro del estudio de Resumido' },
-        { file: 'seminario/3-RESU.jpg', alt: 'Estudio de Resumido durante la grabación de un programa en vivo' },
-        { file: 'seminario/4-RESU.jpg', alt: 'Michelle muestra un recuerdo del seminario, con la credencial colgada' },
-      ],
-    },
-  ] as {
-    title: string;
-    text: string;
-    status: 'Próximo' | 'En curso' | 'Hecho';
-    date?: string;
-    photos?: { file: string; alt: string }[];
-  }[],
 };
 
 export type Project = {
@@ -123,6 +94,14 @@ export const journey = {
       tag: 'Desde 2024',
       paragraphs: [
         'En 2024 me animé a formarme mientras trabajaba: inicié la carrera de Periodismo y Producción de Contenidos y este año realicé el curso de Producción Audiovisual, ambos en Eter. Ahí descubrí que lo mío era producir.',
+      ],
+    },
+    {
+      id: 'seminario',
+      title: 'Seminario de producción de stream y podcast',
+      tag: '14 Nov 2026',
+      paragraphs: [
+        'Realicé el Seminario intensivo de producción de stream y podcast, trabajé en un grupo hermoso y armamos juntas “Una copita más”, streaming de charla entre mujeres y copitas de vino.',
       ],
     },
   ] satisfies Project[],

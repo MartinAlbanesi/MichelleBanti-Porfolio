@@ -9,6 +9,25 @@ import { INSTAGRAM_URL, LINKEDIN_URL, CV_URL } from '../data/site';
 import { icons } from '../data/icons';
 
 const [first, ...rest] = hero.name.split(' ');
+
+// Motas de polvo del foco: posiciones fijas (semilla) dentro del trapecio del haz, con un poco de margen hacia afuera
+let seed = 7;
+const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const motes = Array.from({ length: 22 }, () => {
+  const t = 0.05 + rand() * 0.8; // alto: 0 arriba, 1 abajo
+  const left = 88 + (4 - 88) * t;
+  const right = 100 + (62 - 100) * t;
+  const u = -0.1 + rand() * 1.2; // ancho: un 10% de cada lado cae fuera del haz
+  return {
+    x: +(left + u * (right - left)).toFixed(1),
+    y: +(t * 100).toFixed(1),
+    s: +(1.5 + rand() * 2.5).toFixed(1),
+    d: +(7 + rand() * 7).toFixed(1),
+    delay: -+(rand() * 14).toFixed(1),
+    dx: Math.round(-20 + rand() * 40),
+    dy: Math.round(-35 + rand() * 25),
+  };
+});
 const socials = [
   {
     label: 'Instagram',
@@ -25,6 +44,14 @@ const socials = [
 
 <section id="inicio" class="hero relative isolate overflow-hidden bg-ink text-cream">
   <div aria-hidden="true" class="hero-bg absolute inset-0 -z-10"></div>
+  <!-- Foco de producción: haz de luz desde la esquina superior derecha que cae sobre el retrato -->
+  <div aria-hidden="true" class="spot pointer-events-none absolute -z-10"></div>
+  <!-- Polvo en el aire: motas que se encienden y apagan solo dentro (y apenas fuera) del haz -->
+  <div aria-hidden="true" class="dust pointer-events-none absolute -z-10">
+    {motes.map((m) => (
+      <span style={`left:${m.x}%;top:${m.y}%;--s:${m.s}px;--d:${m.d}s;--delay:${m.delay}s;--dx:${m.dx}px;--dy:${m.dy}px`} />
+    ))}
+  </div>
 
   <div class="relative mx-auto grid max-w-7xl grid-cols-1 gap-x-8 px-4 lg:px-8 pb-3 pt-6 md:pb-10 land:grid-cols-2 land:items-center lg:min-h-svh lg:grid-cols-[1.05fr_1fr] lg:content-center lg:gap-x-20 lg:pb-4 lg:pt-5">
     <!-- Retrato protagonista con el vinilo detrás; sello sobre el vinilo, lejos de la cara -->
@@ -84,24 +111,24 @@ const socials = [
       <!-- Sello circular: el texto gira, la claqueta queda quieta -->
       <div
         aria-hidden="true"
-        class="absolute -bottom-4 -left-[4%] size-24 rounded-full bg-cream shadow-lg sm:-left-14 lg:-bottom-4 lg:-left-[10%] lg:size-28 xl:size-32"
+        class="absolute -bottom-4 -left-[4%] size-28 rounded-full bg-cream shadow-lg sm:-left-14 lg:-bottom-4 lg:-left-[10%] lg:size-32 xl:size-36"
       >
         <svg viewBox="0 0 120 120" class="badge-ring absolute inset-0 size-full" focusable="false">
           <defs>
             <path id="badge-circle" d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0"></path>
           </defs>
           <text
-            font-size="11.3"
+            font-size="11"
             font-weight="800"
             class="fill-ink"
             font-family="'Bricolage Grotesque Variable',system-ui,sans-serif"
           >
-            <textPath href="#badge-circle" textLength="276" lengthAdjust="spacingAndGlyphs">
+            <textPath href="#badge-circle" textLength="283" lengthAdjust="spacing">
               {hero.badge}
             </textPath>
           </text>
         </svg>
-        <ClapperLottie class="absolute left-1/2 top-1/2 w-[50%] -translate-x-1/2 -translate-y-1/2" />
+        <ClapperLottie class="absolute left-1/2 top-1/2 w-[44%] -translate-x-1/2 -translate-y-1/2" />
       </div>
     </div>
 
@@ -147,8 +174,98 @@ const socials = [
   /* Luz cálida detrás del retrato + grano claro liviano (tile pequeño, sin filtro a pantalla completa) */
   .hero-bg {
     background:
-      var(--grain-light), radial-gradient(48rem 40rem at 75% 45%, var(--color-wine) 0%, transparent 70%),
+      var(--grain-light),
+      /* Resplandor más claro desde la esquina superior derecha */
+      radial-gradient(60rem 45rem at 100% 0%, #8a1c28 0%, transparent 65%),
+      radial-gradient(48rem 40rem at 75% 45%, var(--color-wine) 0%, transparent 70%),
       var(--color-ink);
+  }
+
+  /* Haz de luz: trapecio angosto arriba a la derecha que se abre hacia abajo y a la izquierda, difuminado.
+     Vaivén lento y un parpadeo mínimo, como un foco que alguien está apuntando */
+  .spot {
+    top: -8%;
+    right: -4%;
+    width: min(100%, 56rem);
+    height: 120%;
+    /* El blur va en el padre y el recorte en el hijo: si no, clip-path corta el blur y quedan bordes duros */
+    filter: blur(22px);
+    mix-blend-mode: screen;
+    transform-origin: 94% 0;
+    animation:
+      spot-sway 9s ease-in-out infinite alternate,
+      spot-flicker 6s steps(1) infinite;
+  }
+  .spot::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(88% 0, 100% 0, 62% 100%, 4% 100%);
+    background: linear-gradient(to bottom, rgb(255 220 200 / 0.2), rgb(255 200 180 / 0.07) 55%, transparent 90%);
+  }
+  /* Misma caja y vaivén que el haz, para que el polvo se mueva con la luz; se apaga hacia abajo como el haz */
+  .dust {
+    top: -8%;
+    right: -4%;
+    width: min(100%, 56rem);
+    height: 120%;
+    transform-origin: 94% 0;
+    animation: spot-sway 9s ease-in-out infinite alternate;
+    mask-image: linear-gradient(to bottom, #000 40%, transparent 88%);
+  }
+  .dust span {
+    position: absolute;
+    width: var(--s);
+    height: var(--s);
+    border-radius: 50%;
+    background: rgb(255 232 215);
+    box-shadow: 0 0 6px 1px rgb(255 220 200 / 0.6);
+    opacity: 0;
+    animation: mote var(--d) ease-in-out var(--delay) infinite;
+  }
+  /* Entra en la luz, brilla un momento y se pierde mientras flota */
+  @keyframes mote {
+    0% {
+      opacity: 0;
+      translate: 0 0;
+    }
+    35%,
+    55% {
+      opacity: 0.55;
+    }
+    100% {
+      opacity: 0;
+      translate: var(--dx) var(--dy);
+    }
+  }
+  @keyframes spot-sway {
+    from {
+      rotate: -2deg;
+    }
+    to {
+      rotate: 2.5deg;
+    }
+  }
+  @keyframes spot-flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    47% {
+      opacity: 0.9;
+    }
+    49% {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spot,
+    .dust {
+      animation: none;
+    }
+    .dust {
+      display: none;
+    }
   }
 
   /* Pantalla del celular: degradé clay -> brown -> wine con un reflejo arriba, como vidrio.
