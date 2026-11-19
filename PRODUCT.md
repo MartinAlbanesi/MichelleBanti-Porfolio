@@ -20,7 +20,7 @@ Her real path told by her in first person: MercadoLibre, ETER, TENT, the theatre
 
 ## Operating Context
 
-Static site, zero cost, hosted on Cloudflare Pages (25 MiB per file limit). No backend or form: contact via `mailto:` and WhatsApp. Long videos are hosted on YouTube (unlisted) and embedded lazily; short clips are self-hosted. Michelle edits the copy herself, so all text lives in `src/data/content.ts`.
+Static site, zero cost, hosted on Vercel (deploys automatically on every push to `main`). No backend or form: contact via `mailto:` and WhatsApp. Long videos are hosted on YouTube (unlisted) and embedded lazily; short clips are self-hosted. Michelle edits the copy herself, so all text lives in `src/data/content.ts`.
 
 ## Capabilities and Constraints
 
@@ -29,7 +29,7 @@ Static site, zero cost, hosted on Cloudflare Pages (25 MiB per file limit). No b
 - ETER is shown as a curated slider (videos, audio, images) plus a link to the full work (link pending).
 - Zero-cost hosting; mobile first; 3D only as a subtle detail (clapperboard), planned for a later milestone.
 - Palette: dark theme in deep burgundies (Charred Brown, Saving Light) with Tostado, Red Gravel, Rosa arena and Sweet Cream (see DESIGN.md). No green, pink, violet, light blue or pastel colors.
-- Undecided: domain, the ETER full-work link, the TENT clip, photos for the "Hacia dónde voy" steps (mostly landscape).
+- Undecided: domain, the ETER full-work link, the TENT clip.
 
 ## Brand Commitments
 
@@ -37,7 +37,7 @@ Name: Michelle Banti. Voice: close, personal and creative, first person. Persona
 
 ## Evidence on Hand
 
-Photos (`src/assets/hero-selfie.jpeg`, `sobre-mi-selfie.jpeg`, two 2023 photos with a camera, project not confirmed), three ETER videos (`Streaming producción`, `streaming por.si.o.por.no`, `Adolescencia Cobertura`, pending YouTube upload), a moodboard PDF (project not confirmed). Now on the site: BANCA, theatre, MercadoLibre, ETER and "Quién soy" photos. Absent, and not to be invented: the TENT clip, metrics, testimonials and client names.
+Photos (`src/assets/hero-selfie.jpeg`, `sobre-mi-selfie.jpeg`, two 2023 photos with a camera, project not confirmed), three ETER videos (`Streaming producción`, `streaming por.si.o.por.no`, `Adolescencia Cobertura`, pending YouTube upload), a moodboard PDF (project not confirmed). Now on the site: BANCA, theatre, MercadoLibre, ETER, the stream and podcast seminar (Resumido, 14 Nov 2026, where her group made "Una copita más") and "Quién soy" photos. The downloadable CV is `public/cv-michelle-banti.pdf`. Absent, and not to be invented: the TENT clip, metrics, testimonials and client names.
 
 ## Product Principles
 
