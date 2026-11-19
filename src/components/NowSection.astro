@@ -85,17 +85,17 @@ const linkCls =
             <div class="collage relative mx-auto aspect-[4/3] max-h-[36svh] w-full md:aspect-[5/4] md:h-[min(46svh,26rem)] md:max-h-none md:w-auto md:max-w-full lg:mx-0 lg:ml-auto lg:h-[min(62svh,36rem)]">
               {wide && (
                 <div class="pic wide absolute right-0 top-[14%] aspect-[16/11] w-[64%] overflow-hidden rounded-xl shadow-[0_20px_40px_-18px_rgb(0_0_0/0.7)]">
-                  <Image src={wide.src} alt={wide.alt} widths={[400, 640, 900]} sizes="(min-width: 1024px) 26rem, 60vw" quality={72} class="h-full w-full object-cover" style={`object-position:${wide.pos ?? '50% 50%'}`} />
+                  <Image src={wide.src} alt={wide.alt} widths={[400, 640, 900]} sizes="(min-width: 1024px) 26rem, 60vw" quality={72} class="skeleton h-full w-full object-cover" style={`object-position:${wide.pos ?? '50% 50%'}`} />
                 </div>
               )}
               {card && (
                 <div class="pic card absolute left-[2%] top-[4%] aspect-[3/4] w-[46%] overflow-hidden rounded-[1.25rem] ring-4 ring-cream/15 shadow-[0_24px_48px_-16px_rgb(0_0_0/0.75)]">
-                  <Image src={card.src} alt={card.alt} widths={[300, 480, 700]} sizes="(min-width: 1024px) 18rem, 42vw" quality={72} class="h-full w-full object-cover" style={`object-position:${card.pos ?? '50% 50%'}`} />
+                  <Image src={card.src} alt={card.alt} widths={[300, 480, 700]} sizes="(min-width: 1024px) 18rem, 42vw" quality={72} class="skeleton h-full w-full object-cover" style={`object-position:${card.pos ?? '50% 50%'}`} />
                 </div>
               )}
               {circle && (
                 <div class="pic circle absolute left-[32%] top-[42%] aspect-square w-[34%] overflow-hidden rounded-full bg-cream ring-[6px] ring-cream shadow-[0_20px_40px_-14px_rgb(0_0_0/0.75)]">
-                  <Image src={circle.src} alt={circle.alt} widths={[240, 400]} sizes="(min-width: 1024px) 13rem, 32vw" quality={72} class="h-full w-full object-cover" style={`object-position:${circle.pos ?? '50% 50%'}`} />
+                  <Image src={circle.src} alt={circle.alt} widths={[240, 400]} sizes="(min-width: 1024px) 13rem, 32vw" quality={72} class="skeleton h-full w-full object-cover" style={`object-position:${circle.pos ?? '50% 50%'}`} />
                 </div>
               )}
               <!-- Escritorio: enlace a Instagram en la esquina libre del collage (abajo a la derecha, debajo de la foto ancha) -->
