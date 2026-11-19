@@ -117,16 +117,17 @@ const socials = [
           <defs>
             <path id="badge-circle" d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0"></path>
           </defs>
+          <!-- xml:space="preserve": respeta los dobles espacios alrededor del "·" (SVG los colapsa a uno).
+               textLength es solo el respaldo sin JS; el script de abajo ajusta el tamaño a la fuente real -->
           <text
+            data-badge-text
+            xml:space="preserve"
             font-size="11"
             font-weight="800"
+            letter-spacing="0.04em"
             class="fill-ink"
             font-family="'Bricolage Grotesque Variable',system-ui,sans-serif"
-          >
-            <textPath href="#badge-circle" textLength="283" lengthAdjust="spacing">
-              {hero.badge}
-            </textPath>
-          </text>
+          ><textPath href="#badge-circle" textLength="283" lengthAdjust="spacing">{hero.badge}</textPath></text>
         </svg>
         <ClapperLottie class="absolute left-1/2 top-1/2 w-[44%] -translate-x-1/2 -translate-y-1/2" />
       </div>
@@ -169,6 +170,25 @@ const socials = [
     </div>
   </div>
 </section>
+
+<script>
+  // Rueda del sello: en vez de forzar el texto al largo del círculo (en celular eso comprimía el espaciado),
+  // mide el ancho real con la fuente ya cargada y escala la letra para que el texto dé una vuelta justa.
+  // Así el espacio entre letras y alrededor del "·" queda igual en cualquier pantalla y con cualquier fuente.
+  const text = document.querySelector<SVGTextElement>('[data-badge-text]');
+  const path = text?.querySelector('textPath');
+  const ring = document.querySelector<SVGPathElement>('#badge-circle');
+  if (text && path && ring) {
+    document.fonts.ready.then(() => {
+      path.removeAttribute('textLength');
+      path.removeAttribute('lengthAdjust');
+      const size = parseFloat(text.getAttribute('font-size')!);
+      const natural = text.getComputedTextLength();
+      // Unidades del viewBox: no cambia con el tamaño en pantalla, solo con la fuente
+      if (natural > 0) text.setAttribute('font-size', String((size * ring.getTotalLength()) / natural));
+    });
+  }
+</script>
 
 <style>
   /* Luz cálida detrás del retrato + grano claro liviano (tile pequeño, sin filtro a pantalla completa) */
